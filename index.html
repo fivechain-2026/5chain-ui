@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>5-Chain — Warehouse Inventory Financing Platform</title>
+<meta name="description" content="5-Chain turns warehouse inventory into verified, lender-ready collateral. Tamper-evident stock records. Real-time lender reports. Built for Indian logistics."/>
+<meta property="og:title" content="5-Chain — Inventory Financing Platform"/>
+<meta property="og:description" content="Unlock capital against your warehouse stock. Verified inventory records. Trusted by lenders."/>
+<meta property="og:type" content="website"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --ink:     #0B0F1A;
+  --navy:    #0F1B35;
+  --navy2:   #162040;
+  --panel:   #1A2545;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --amber:   #E8A84C;
+  --amber2:  #C8871E;
+  --amber-bg:#2A1F08;
+  --white:   #F4F2EC;
+  --muted:   #8A93A8;
+  --green:   #4FBFA4;
+  --red:     #E86B5A;
+  --serif:   'DM Serif Display', Georgia, serif;
+  --sans:    'Instrument Sans', 'Segoe UI', sans-serif;
+  --mono:    'DM Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--ink);
+  color: var(--white);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: .4;
+}
+
+/* ── HEADER ── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 3rem;
+  border-bottom: 0.5px solid var(--border);
+  background: rgba(11,15,26,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  background: var(--amber);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark svg { width: 18px; height: 18px; }
+
+.logo-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+
+.logo-domain {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-top: 1px;
+}
+
+.nav { display: flex; align-items: center; gap: 2rem; }
+
+.nav a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav a:hover { color: var(--white); }
+
+.btn-demo {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--amber);
+  background: transparent;
+  color: var(--amber);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-demo:hover {
+  background: var(--amber);
+  color: var(--ink);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8rem 3rem 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(232,168,76,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 70%, rgba(15,27,53,0.8) 0%, transparent 60%),
+    linear-gradient(160deg, var(--ink) 0%, var(--navy) 50%, var(--ink) 100%);
+}
+
+/* grid lines */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 4rem;
+  align-items: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  padding: 4px 12px;
+  border: 0.5px solid rgba(232,168,76,0.3);
+  border-radius: 20px;
+  background: rgba(232,168,76,0.06);
+}
+
+.eyebrow-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--amber);
+}
+
+.hero-body {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-body strong { color: var(--white); font-weight: 500; }
+
+.hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  background: var(--amber);
+  color: var(--ink);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover { background: var(--amber2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,168,76,0.25); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--white);
+  border: 0.5px solid var(--border2);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-secondary:hover { background: var(--panel); border-color: rgba(255,255,255,0.25); }
+
+.hero-trust {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 0.5px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.trust-item .tick {
+  color: var(--green);
+  font-size: 0.85rem;
+}
+
+/* ── LENDER CARD (Hero right) ── */
+.lender-card {
+  background: var(--panel);
+  border: 0.5px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.lc-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-title { font-size: 0.7rem; font-family: var(--mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.lc-badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(79,191,164,0.12);
+  color: var(--green);
+  font-family: var(--mono);
+  border: 0.5px solid rgba(79,191,164,0.3);
+}
+
+.lc-score-row {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.lc-score-big {
+  font-family: var(--serif);
+  font-size: 3rem;
+  color: var(--white);
+  line-height: 1;
+}
+
+.lc-score-denom { font-size: 1rem; color: var(--muted); }
+
+.lc-score-label {
+  font-size: 0.65rem;
+  color: var(--amber);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+.lc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+
+.lc-metric {
+  background: var(--panel);
+  padding: 0.875rem 1.25rem;
+}
+
+.lc-metric-val {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.lc-metric-label { font-size: 0.65rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.lc-proof { padding: 1rem 1.25rem; }
+
+.lc-proof-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  padding: 4px 0;
+  font-family: var(--mono);
+}
+
+.proof-icon { color: var(--green); }
+
+.lc-footer {
+  padding: .875rem 1.25rem;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-hash {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.lc-share-btn {
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 5px;
+  background: var(--amber);
+  color: var(--ink);
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+/* ── SECTION SHARED ── */
+section { padding: 6rem 3rem; position: relative; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.section-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--amber);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.section-body {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 520px;
+}
+
+/* ── PROBLEM ── */
+.problem { background: var(--navy); }
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.problem-list { margin-top: 2.5rem; }
+
+.problem-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.problem-item:last-child { border-bottom: none; }
+
+.prob-num {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  color: var(--amber);
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.5;
+  width: 36px;
+}
+
+.prob-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.prob-body { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+.problem-visual {
+  background: var(--panel);
+  border: 0.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.pv-title { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; }
+
+.pv-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 0.82rem;
+}
+
+.pv-item:last-child { border-bottom: none; }
+
+.pv-label { color: var(--muted); }
+.pv-val { font-family: var(--mono); }
+.pv-ok { color: var(--green); }
+.pv-bad { color: var(--red); }
+.pv-amber { color: var(--amber); }
+
+/* ── HOW IT WORKS ── */
+.how { background: var(--ink); }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.step {
+  background: var(--panel);
+  border: 0.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 1.75rem;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.step:hover { border-color: rgba(232,168,76,0.3); }
+
+.step-num {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  color: rgba(232,168,76,0.15);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.step-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--amber-bg);
+  border: 0.5px solid rgba(232,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.step-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+.step-arrow {
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--amber);
+  opacity: 0.4;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+/* ── FEATURES ── */
+.features { background: var(--navy); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 3rem;
+}
+
+.feature {
+  background: var(--navy);
+  padding: 2rem;
+  transition: background 0.2s;
+}
+
+.feature:hover { background: var(--panel); }
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--amber-bg);
+  border: 0.5px solid rgba(232,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.feature-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+.feature-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+.feature-tag {
+  display: inline-block;
+  margin-top: 0.875rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tag-core { background: rgba(79,191,164,0.1); color: var(--green); border: 0.5px solid rgba(79,191,164,0.2); }
+.tag-finance { background: rgba(232,168,76,0.1); color: var(--amber); border: 0.5px solid rgba(232,168,76,0.2); }
+.tag-tech { background: rgba(15,27,53,0.8); color: var(--muted); border: 0.5px solid var(--border2); }
+
+/* ── METRICS ── */
+.metrics-section {
+  background: var(--ink);
+  border-top: 0.5px solid var(--border);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  divide-x: var(--border);
+}
+
+.metric-block {
+  padding: 3rem 2rem;
+  border-right: 0.5px solid var(--border);
+  text-align: center;
+}
+
+.metric-block:last-child { border-right: none; }
+
+.metric-val {
+  font-family: var(--serif);
+  font-size: 2.8rem;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.metric-val span { color: var(--amber); }
+
+.metric-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── WHO ── */
+.who { background: var(--navy); }
+
+.who-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 3rem;
+}
+
+.who-card {
+  background: var(--panel);
+  border: 0.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 1.75rem;
+}
+
+.who-role {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.who-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 0.75rem;
+}
+
+.who-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+.who-benefits {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.who-benefit {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.who-benefit .tick { color: var(--green); }
+
+/* ── ROADMAP ── */
+.roadmap { background: var(--ink); }
+
+.roadmap-timeline {
+  position: relative;
+  margin-top: 3rem;
+  padding-left: 2rem;
+}
+
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--amber), transparent);
+}
+
+.roadmap-item {
+  position: relative;
+  padding: 1.5rem 0 1.5rem 2rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.roadmap-item:last-child { border-bottom: none; }
+
+.roadmap-item::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 2rem;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--ink);
+}
+
+.roadmap-phase {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.roadmap-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.roadmap-body { font-size: 0.82rem; color: var(--muted); }
+
+.roadmap-status {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-building { background: rgba(232,168,76,0.12); color: var(--amber); border: 0.5px solid rgba(232,168,76,0.3); }
+.status-next { background: var(--panel); color: var(--muted); border: 0.5px solid var(--border2); }
+.status-future { background: var(--panel); color: var(--muted); border: 0.5px solid var(--border2); opacity: 0.6; }
+
+/* ── CTA ── */
+.cta-section { background: var(--navy); text-align: center; }
+
+.cta-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.cta-section .section-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
+
+.cta-section .section-body { max-width: 100%; margin: 0 auto 2.5rem; }
+
+.cta-form {
+  display: flex;
+  gap: 10px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.cta-input {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cta-input::placeholder { color: var(--muted); }
+.cta-input:focus { border-color: var(--amber); }
+
+.cta-note { font-size: 0.72rem; color: var(--muted); margin-top: 1rem; font-family: var(--mono); letter-spacing: 0.03em; }
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--ink);
+  border-top: 0.5px solid var(--border);
+  padding: 2.5rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-left { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.footer-links { display: flex; gap: 1.5rem; }
+
+.footer-links a {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.footer-links a:hover { color: var(--white); }
+
+.footer-right {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── SUCCESS MSG ── */
+#success-msg {
+  display: none;
+  font-size: 0.82rem;
+  color: var(--green);
+  font-family: var(--mono);
+  margin-top: 1rem;
+}
+
+/* ── ANIMATIONS ── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .header { padding: 1rem 1.5rem; }
+  .nav { display: none; }
+  .hero { padding: 7rem 1.5rem 4rem; }
+  .hero-inner { grid-template-columns: 1fr; }
+  .lender-card { display: none; }
+  section { padding: 4rem 1.5rem; }
+  .problem-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .metrics-row { grid-template-columns: 1fr 1fr; }
+  .who-grid { grid-template-columns: 1fr; }
+  .footer { padding: 2rem 1.5rem; flex-direction: column; align-items: flex-start; }
+  .cta-form { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+<header class="header">
+  <a href="#" class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="8" width="14" height="8" rx="1.5" fill="#0B0F1A" opacity="0.9"/>
+        <path d="M1 8.5L9 3L17 8.5" stroke="#0B0F1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="7" y="11" width="4" height="5" rx="0.5" fill="#E8A84C"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">5-Chain</div>
+      <div class="logo-domain">fivechain.in</div>
+    </div>
+  </a>
+
+  <nav class="nav">
+    <a href="#problem">Problem</a>
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#who">Who is it for</a>
+    <a href="#roadmap">Roadmap</a>
+  </nav>
+
+  <a href="#cta" class="btn-demo">Request early access</a>
+</header>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        Early access · Bengaluru, India
+      </div>
+
+      <h1 class="hero-title">
+        Your warehouse stock<br>
+        is <em>collateral</em>.<br>
+        We make lenders<br>
+        believe it.
+      </h1>
+
+      <p class="hero-body">
+        5-Chain turns warehouse inventory into <strong>verified, lender-ready proof</strong>.
+        Tamper-evident stock records. Real-time collateral reports.
+        Built for Indian warehouse operators who can't access working capital — despite sitting on crores of inventory.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary">
+          Get early access
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#how" class="btn-secondary">See how it works</a>
+      </div>
+
+      <div class="hero-trust">
+        <div class="trust-item"><span class="tick">✓</span> Tamper-evident ledger</div>
+        <div class="trust-item"><span class="tick">✓</span> FIFO stock valuation</div>
+        <div class="trust-item"><span class="tick">✓</span> Shareable lender reports</div>
+        <div class="trust-item"><span class="tick">✓</span> Multi-tenant isolation</div>
+      </div>
+    </div>
+
+    <!-- Floating lender card -->
+    <div class="lender-card">
+      <div class="lc-header">
+        <div class="lc-title">Lender trust report · 5C-RPT-2026-WW01</div>
+        <div class="lc-badge">● Verified</div>
+      </div>
+
+      <div class="lc-score-row">
+        <div>
+          <div class="lc-score-big">91<span class="lc-score-denom">/100</span></div>
+          <div class="lc-score-label">Trust score</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--serif);font-size:1.5rem;color:var(--white)">₹63.2L</div>
+          <div style="font-size:0.65rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em">Eligible collateral</div>
+        </div>
+      </div>
+
+      <div class="lc-metrics">
+        <div class="lc-metric">
+          <div class="lc-metric-val">₹84.3L</div>
+          <div class="lc-metric-label">Stock value</div>
+        </div>
+        <div class="lc-metric">
+          <div class="lc-metric-val">30</div>
+          <div class="lc-metric-label">Days verified</div>
+        </div>
+        <div class="lc-metric">
+          <div class="lc-metric-val">412</div>
+          <div class="lc-metric-label">Audit events</div>
+        </div>
+        <div class="lc-metric">
+          <div class="lc-metric-val" style="color:var(--green)">0</div>
+          <div class="lc-metric-label">Anomalies</div>
+        </div>
+      </div>
+
+      <div class="lc-proof">
+        <div class="lc-proof-item"><span class="proof-icon">✓</span> 30/30 days continuously logged</div>
+        <div class="lc-proof-item"><span class="proof-icon">✓</span> All movements operator-signed</div>
+        <div class="lc-proof-item"><span class="proof-icon">✓</span> No retroactive edits — hash-verified</div>
+        <div class="lc-proof-item"><span class="proof-icon">✓</span> Physical audit on record</div>
+      </div>
+
+      <div class="lc-footer">
+        <div class="lc-hash">hash: a3f9c2d1...e91b4</div>
+        <button class="lc-share-btn">Share with lender ↗</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROBLEM ═══════════════════════════════════════════════ -->
+<section class="problem" id="problem">
+  <div class="section-inner">
+    <div class="problem-grid">
+      <div>
+        <div class="section-eyebrow">The problem</div>
+        <h2 class="section-title">Crores of stock.<br>Zero credit.</h2>
+        <p class="section-body">India's warehouse operators sit on billions of rupees of inventory they can't borrow against. Not because the stock isn't there — but because lenders can't verify it.</p>
+
+        <div class="problem-list">
+          <div class="problem-item">
+            <div class="prob-num">01</div>
+            <div>
+              <div class="prob-title">Records that can't be trusted</div>
+              <div class="prob-body">Paper stock registers, WhatsApp photos, and Excel sheets are falsifiable. Lenders know it — so they discount or reject.</div>
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="prob-num">02</div>
+            <div>
+              <div class="prob-title">Verification takes weeks</div>
+              <div class="prob-body">Physical audits cost ₹50,000+ and take 2–3 weeks. By the time credit is approved, the working capital crisis has passed.</div>
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="prob-num">03</div>
+            <div>
+              <div class="prob-title">No standard proof format</div>
+              <div class="prob-body">Every NBFC asks for different documents. There is no universal, lender-accepted format for warehouse inventory proof.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="problem-visual fade-up">
+        <div class="pv-title">Traditional inventory financing</div>
+        <div class="pv-item"><span class="pv-label">Verification method</span><span class="pv-val pv-bad">Physical audit</span></div>
+        <div class="pv-item"><span class="pv-label">Time to credit</span><span class="pv-val pv-bad">3–6 weeks</span></div>
+        <div class="pv-item"><span class="pv-label">Verification cost</span><span class="pv-val pv-bad">₹40,000–1L</span></div>
+        <div class="pv-item"><span class="pv-label">Record tamper-proof</span><span class="pv-val pv-bad">No</span></div>
+        <div class="pv-item"><span class="pv-label">Real-time visibility</span><span class="pv-val pv-bad">None</span></div>
+        <div style="height:.75rem;border-bottom:0.5px solid var(--border);margin:.25rem 0"></div>
+        <div class="pv-title" style="margin-top:.75rem">With 5-Chain</div>
+        <div class="pv-item"><span class="pv-label">Verification method</span><span class="pv-val pv-ok">Cryptographic proof</span></div>
+        <div class="pv-item"><span class="pv-label">Time to credit</span><span class="pv-val pv-ok">Same day</span></div>
+        <div class="pv-item"><span class="pv-label">Verification cost</span><span class="pv-val pv-ok">₹0 (included)</span></div>
+        <div class="pv-item"><span class="pv-label">Record tamper-proof</span><span class="pv-val pv-ok">Yes — hash chain</span></div>
+        <div class="pv-item"><span class="pv-label">Real-time visibility</span><span class="pv-val pv-ok">Continuous</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══════════════════════════════════════════════ -->
+<section class="how" id="how">
+  <div class="section-inner">
+    <div class="section-eyebrow">How it works</div>
+    <h2 class="section-title">Three steps to<br>lender-ready inventory</h2>
+
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-num">01</div>
+        <div class="step-icon">📦</div>
+        <div class="step-title">Log every movement</div>
+        <div class="step-body">Warehouse operators log every stock-in and stock-out through 5-Chain. Every entry is timestamped, operator-signed, and locked with a cryptographic hash. Nothing can be edited after submission.</div>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step fade-up" style="transition-delay:.1s">
+        <div class="step-num">02</div>
+        <div class="step-icon">🔐</div>
+        <div class="step-title">System builds proof</div>
+        <div class="step-body">5-Chain continuously calculates FIFO stock valuation, applies LTV ratios per SKU category, and generates a trust score based on 30 days of verified activity. No manual work required.</div>
+        <div class="step-arrow">→</div>
+      </div>
+      <div class="step fade-up" style="transition-delay:.2s">
+        <div class="step-num">03</div>
+        <div class="step-icon">📊</div>
+        <div class="step-title">Share with lender</div>
+        <div class="step-body">One click generates a shareable, time-limited lender report with collateral breakdown, audit trail, and verification proofs. The lender sees exactly what they need to approve credit — in minutes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══════════════════════════════════════════════ -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-eyebrow">Platform features</div>
+    <h2 class="section-title">Everything a lender<br>needs to say yes</h2>
+
+    <div class="features-grid">
+      <div class="feature fade-up">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">Immutable audit log</div>
+        <div class="feature-body">Every stock event is hash-chained to the previous one. Any tampering breaks the chain instantly — detectable by any party. 30 days of continuous history builds undeniable credibility.</div>
+        <span class="feature-tag tag-core">Core trust layer</span>
+      </div>
+      <div class="feature fade-up" style="transition-delay:.1s">
+        <div class="feature-icon">₹</div>
+        <div class="feature-title">FIFO stock valuation</div>
+        <div class="feature-body">Batch-level FIFO and WAC valuation with automatic LTV application per SKU category. Agri gets 75% LTV. FMCG gets 70%. Packaging is excluded. Every number is auditable to its source GRN.</div>
+        <span class="feature-tag tag-finance">Finance layer</span>
+      </div>
+      <div class="feature fade-up" style="transition-delay:.2s">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Goods receipt notes (GRN)</div>
+        <div class="feature-body">Every inbound shipment creates a QC-verified GRN before stock is credited. Supplier, vehicle, PO reference, and inspector sign-off are all captured and locked.</div>
+        <span class="feature-tag tag-core">Inbound module</span>
+      </div>
+      <div class="feature fade-up" style="transition-delay:.3s">
+        <div class="feature-icon">🏢</div>
+        <div class="feature-title">Multi-tenant isolation</div>
+        <div class="feature-body">Multiple suppliers can store goods in the same warehouse. Each sees only their own inventory. Isolation is enforced at the database level via Row Level Security — not just the UI.</div>
+        <span class="feature-tag tag-tech">Architecture</span>
+      </div>
+      <div class="feature fade-up" style="transition-delay:.1s">
+        <div class="feature-icon">🔑</div>
+        <div class="feature-title">Token-gated lender access</div>
+        <div class="feature-body">Share a time-limited, read-only link with any NBFC or lender. No account required. Links expire automatically. Revocable in one click. Lenders see exactly what you choose to share.</div>
+        <span class="feature-tag tag-finance">Lender layer</span>
+      </div>
+      <div class="feature fade-up" style="transition-delay:.2s">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Blockchain settlement (Phase 4)</div>
+        <div class="feature-body">Hyperledger Fabric L1 settlement with ZK-Rollup scaling. Mathematical proof of inventory state for multi-party trust — without revealing competitor data. The moat that takes 18 months to build.</div>
+        <span class="feature-tag tag-tech">Coming · Phase 4</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ METRICS ═══════════════════════════════════════════════ -->
+<section class="metrics-section">
+  <div class="section-inner">
+    <div class="metrics-row">
+      <div class="metric-block fade-up">
+        <div class="metric-val">₹<span>63L</span></div>
+        <div class="metric-label">Avg collateral per warehouse</div>
+      </div>
+      <div class="metric-block fade-up" style="transition-delay:.1s">
+        <div class="metric-val"><span>30</span>d</div>
+        <div class="metric-label">To build lender trust score</div>
+      </div>
+      <div class="metric-block fade-up" style="transition-delay:.2s">
+        <div class="metric-val"><span>0</span></div>
+        <div class="metric-label">Physical audits needed</div>
+      </div>
+      <div class="metric-block fade-up" style="transition-delay:.3s">
+        <div class="metric-val"><span>₹0</span></div>
+        <div class="metric-label">Verification cost</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHO ═══════════════════════════════════════════════ -->
+<section class="who" id="who">
+  <div class="section-inner">
+    <div class="section-eyebrow">Who is 5-Chain for</div>
+    <h2 class="section-title">Three parties.<br>One source of truth.</h2>
+
+    <div class="who-grid">
+      <div class="who-card fade-up">
+        <div class="who-role">Warehouse operators</div>
+        <div class="who-title">Unlock capital you already have</div>
+        <div class="who-body">You have crores of inventory but can't borrow against it. 5-Chain builds the proof automatically — 30 days of verified records that any NBFC can trust.</div>
+        <div class="who-benefits">
+          <div class="who-benefit"><span class="tick">✓</span> No manual documentation</div>
+          <div class="who-benefit"><span class="tick">✓</span> Share reports in one click</div>
+          <div class="who-benefit"><span class="tick">✓</span> Know your collateral value daily</div>
+        </div>
+      </div>
+      <div class="who-card fade-up" style="transition-delay:.1s">
+        <div class="who-role">NBFCs &amp; lenders</div>
+        <div class="who-title">Verify inventory without sending anyone</div>
+        <div class="who-body">Stop paying for physical audits. 5-Chain gives you a continuously verified inventory picture — with a trust score, LTV-adjusted collateral value, and a full audit trail.</div>
+        <div class="who-benefits">
+          <div class="who-benefit"><span class="tick">✓</span> Same-day credit decisions</div>
+          <div class="who-benefit"><span class="tick">✓</span> Tamper-evident collateral proof</div>
+          <div class="who-benefit"><span class="tick">✓</span> FIFO valuation, not self-reported</div>
+        </div>
+      </div>
+      <div class="who-card fade-up" style="transition-delay:.2s">
+        <div class="who-role">Supplier tenants</div>
+        <div class="who-title">Track your stock in any warehouse</div>
+        <div class="who-body">Your goods are stored in a third-party warehouse. 5-Chain gives you a real-time view of your own stock — isolated from other tenants — and a record of every movement.</div>
+        <div class="who-benefits">
+          <div class="who-benefit"><span class="tick">✓</span> Real-time stock visibility</div>
+          <div class="who-benefit"><span class="tick">✓</span> Full movement history</div>
+          <div class="who-benefit"><span class="tick">✓</span> Data isolation from other tenants</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ROADMAP ═══════════════════════════════════════════════ -->
+<section class="roadmap" id="roadmap">
+  <div class="section-inner">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start">
+      <div>
+        <div class="section-eyebrow">Product roadmap</div>
+        <h2 class="section-title">From WMS to<br>5PL platform</h2>
+        <p class="section-body">We're building in phases — each unlocked by real customer need, not ambition. The blockchain and ZK cryptography architecture comes last, earned through real usage.</p>
+      </div>
+
+      <div class="roadmap-timeline fade-up">
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 1 · Now</div>
+          <div class="roadmap-title">Inventory trust MVP</div>
+          <div class="roadmap-body">WMS core — stock entry, GRN, SKU master, audit log, FIFO valuation, lender report, auth + multi-tenant</div>
+          <span class="roadmap-status status-building">Building now</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 2 · Q3 2026</div>
+          <div class="roadmap-title">Operational completeness</div>
+          <div class="roadmap-body">Purchase orders, sales orders, dispatch, cycle counting, collateral scoring engine, mobile app, e-way bill</div>
+          <span class="roadmap-status status-next">Next</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 3 · Q4 2026</div>
+          <div class="roadmap-title">NBFC integration</div>
+          <div class="roadmap-body">Lender portal, in-app financing applications, KredX / Vayana API integration, IoT sensor anchoring</div>
+          <span class="roadmap-status status-next">Planned</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 4 · 2027</div>
+          <div class="roadmap-title">Blockchain settlement</div>
+          <div class="roadmap-body">Hyperledger Fabric L1, ZK-Rollup scaling, multi-warehouse network, demand forecasting AI</div>
+          <span class="roadmap-status status-future">Future</span>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 5 · 2027+</div>
+          <div class="roadmap-title">5PL + tokenisation</div>
+          <div class="roadmap-body">ZK privacy proofs, ERC-3643 warehouse receipt tokens, fractional investor access, full 5PL orchestration</div>
+          <span class="roadmap-status status-future">Vision</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══════════════════════════════════════════════ -->
+<section class="cta-section" id="cta">
+  <div class="section-inner cta-inner">
+    <div class="section-eyebrow" style="text-align:center">Early access · Limited pilots</div>
+    <h2 class="section-title">Be the first warehouse<br>to <em>prove</em> your stock</h2>
+    <p class="section-body" style="text-align:center;margin:0 auto 2.5rem">We're onboarding 5 pilot warehouses in Bengaluru. If you have inventory you can't borrow against — or you're a lender looking for verified collateral — get in touch.</p>
+
+    <form class="cta-form" onsubmit="handleSubmit(event)">
+      <input class="cta-input" type="email" placeholder="your@email.com" required id="email-input"/>
+      <button type="submit" class="btn-primary" style="white-space:nowrap">
+        Request access →
+      </button>
+    </form>
+    <div id="success-msg">✓ Got it. We'll be in touch within 48 hours.</div>
+    <div class="cta-note">No spam. No sales calls unless you ask. Just a conversation.</div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-left">
+    <div class="footer-brand">5-Chain</div>
+    <div class="footer-links">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="mailto:hello@fivechain.in">hello@fivechain.in</a>
+    </div>
+  </div>
+  <div class="footer-right">© 2026 5-Chain · fivechain.in · Bengaluru, India</div>
+</footer>
+
+<script>
+// Scroll animations
+const observer = new IntersectionObserver(
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+);
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Form submit
+function handleSubmit(e) {
+  e.preventDefault();
+  const email = document.getElementById('email-input').value;
+  const msg = document.getElementById('success-msg');
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  setTimeout(() => {
+    msg.style.display = 'block';
+    e.target.style.display = 'none';
+    // In production: POST to your API / Supabase / Formspree
+    console.log('Early access request:', email);
+  }, 800);
+}
+
+// Smooth active nav
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--white)' : '';
+  });
+}, { passive: true });
+</script>
+
+</body>
+</html>
