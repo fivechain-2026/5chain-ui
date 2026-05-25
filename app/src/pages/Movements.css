@@ -1,0 +1,18 @@
+.mvt-picker-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  align-items: flex-end;
+}
+
+.mvt-loc {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--amber);
+}
+
+.mvt-qty {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--white);
+}

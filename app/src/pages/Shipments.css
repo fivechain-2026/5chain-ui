@@ -1,0 +1,88 @@
+/* ── Shipment stepper ── */
+.shp-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.shp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.shp-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  background: var(--navy);
+  color: var(--muted);
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s;
+}
+
+.shp-circle.done    { background: rgba(79,191,164,0.15); border-color: var(--green); color: var(--green); }
+.shp-circle.current { background: rgba(232,168,76,0.15); border-color: var(--amber); color: var(--amber); box-shadow: 0 0 0 3px rgba(232,168,76,0.1); }
+
+.shp-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.shp-label.done    { color: var(--green); }
+.shp-label.current { color: var(--amber); }
+
+.shp-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  min-width: 28px;
+  max-width: 72px;
+  margin-bottom: 20px;
+  transition: background 0.2s;
+}
+
+.shp-line.done { background: var(--green); }
+
+/* ── Shipment detail meta ── */
+.shp-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.shp-meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.shp-meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  flex-shrink: 0;
+}

@@ -1,0 +1,125 @@
+/* ── Status stepper ── */
+.status-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.stepper-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  transition: all 0.2s;
+  background: var(--navy);
+  color: var(--muted);
+  position: relative;
+  z-index: 1;
+}
+
+.stepper-circle.done {
+  background: rgba(79,191,164,0.15);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.stepper-circle.current {
+  background: rgba(232,168,76,0.15);
+  border-color: var(--amber);
+  color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(232,168,76,0.1);
+}
+
+.stepper-circle.cancelled {
+  background: rgba(232,107,90,0.12);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.stepper-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.stepper-label.done    { color: var(--green); }
+.stepper-label.current { color: var(--amber); }
+
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  min-width: 32px;
+  max-width: 80px;
+  margin-bottom: 20px; /* aligns with circle center */
+  transition: background 0.2s;
+}
+
+.stepper-line.done { background: var(--green); }
+
+/* ── Order detail ── */
+.order-header-card {
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.order-meta-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.order-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.order-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Lines table ── */
+.picked-qty { font-family: var(--font-mono); font-size: 0.85rem; color: var(--green); }
+.req-qty    { font-family: var(--font-mono); font-size: 0.85rem; color: var(--white); }
+
+.add-line-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.add-line-form .form-group { flex: 1; min-width: 160px; }
