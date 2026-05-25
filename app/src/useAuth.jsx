@@ -1,22 +1,27 @@
-import { createContext, useContext, useState } from 'react';
-
-// DEV BYPASS — set to null to require real login
-const DEV_USER = {
-  id: 'dev-user-id',
-  organization_id: 'dev-org-id',
-  email: 'dev@5chain.local',
-  role: 'admin',
-};
+import { createContext, useContext, useState, useEffect } from 'react';
+import { api } from './api.js';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(DEV_USER);
+  const [user, setUser]       = useState(null);
+  const [checking, setChecking] = useState(true);
 
-  function logout() {
+  // On mount, verify the session cookie is still valid
+  useEffect(() => {
+    api.get('/auth/me')
+      .then(r => setUser(r?.data?.user ?? r?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setChecking(false));
+  }, []);
+
+  async function logout() {
+    try { await api.post('/auth/logout'); } catch {}
     setUser(null);
-    // TODO: call POST /auth/logout when real auth is wired
   }
+
+  // Show nothing while verifying session — avoids flash of login page
+  if (checking) return null;
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout }}>

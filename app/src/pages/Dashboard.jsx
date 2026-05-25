@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { mockOrders, mockShipments, mockTenants, mockWarehouses, mockInventorySummary } from '../mockdata.js';
 import './Dashboard.css';
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const ORDER_STATUS_CFG = {
   created:    { label: 'Created',    cls: 'badge-muted'  },
