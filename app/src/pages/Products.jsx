@@ -40,6 +40,7 @@ export default function Products() {
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState('');
   const [fieldErr, setFieldErr]     = useState({});
+  const [deletingId, setDeletingId] = useState(null);
 
   function load() {
     setLoading(true);
@@ -77,6 +78,20 @@ export default function Products() {
     const { name, value, type, checked } = e.target;
     setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
     setFieldErr(fe => ({ ...fe, [name]: '' }));
+  }
+
+  async function handleDelete(p, e) {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+    setDeletingId(p.id);
+    try {
+      await api.delete(`/products/${p.id}`);
+      load();
+    } catch (err) {
+      alert(err.message || 'Could not delete product.');
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   function validate() {
@@ -159,6 +174,7 @@ export default function Products() {
                 <th>Category</th>
                 <th>UOM</th>
                 <th>Tracking</th>
+                <th style={{ width: 80 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -166,7 +182,7 @@ export default function Products() {
                 <SkeletonRows />
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div className="empty-state">
                       <div style={{ fontSize: '2rem', opacity: 0.2 }}>◈</div>
                       <div>{products.length === 0 ? 'No products yet' : 'No products match your filter'}</div>
@@ -197,6 +213,13 @@ export default function Products() {
                         {p.is_serialized     && <span className="badge badge-green">Serial</span>}
                         {!p.is_batch_tracked && !p.is_expiry_tracked && !p.is_serialized && <span className="text-muted text-sm">—</span>}
                       </div>
+                    </td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <button className="btn btn-danger btn-sm"
+                        disabled={deletingId === p.id}
+                        onClick={e => handleDelete(p, e)}>
+                        {deletingId === p.id ? '…' : 'Delete'}
+                      </button>
                     </td>
                   </tr>
                 ))

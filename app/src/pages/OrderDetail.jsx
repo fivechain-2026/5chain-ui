@@ -82,6 +82,10 @@ export default function OrderDetail() {
   const [addingLine, setAddingLine] = useState(false);
   const [lineError, setLineError] = useState('');
 
+  const [pickQtys, setPickQtys]   = useState({});
+  const [pickingId, setPickingId] = useState(null);
+  const [pickError, setPickError] = useState('');
+
   function loadOrder() {
     return api.get(`/orders/${id}`).then(r => r?.data ?? r).catch(() => null);
   }
@@ -134,6 +138,22 @@ export default function OrderDetail() {
     }
   }
 
+  async function pickLine(lineID, requestedQty) {
+    const qty = parseFloat(pickQtys[lineID] ?? '');
+    if (isNaN(qty) || qty < 0) { setPickError('Enter a valid picked quantity.'); return; }
+    if (qty > requestedQty) { setPickError(`Picked qty cannot exceed requested qty (${requestedQty}).`); return; }
+    setPickingId(lineID); setPickError('');
+    try {
+      await api.patch(`/orders/${id}/lines/${lineID}`, { picked_qty: qty });
+      loadLines().then(setLines);
+      setPickQtys(prev => ({ ...prev, [lineID]: '' }));
+    } catch (err) {
+      setPickError(err.message || 'Could not update picked qty.');
+    } finally {
+      setPickingId(null);
+    }
+  }
+
   async function addLine(e) {
     e.preventDefault();
     if (!lineForm.product_id || !lineForm.qty) { setLineError('Product and quantity are required.'); return; }
@@ -156,6 +176,7 @@ export default function OrderDetail() {
   const canAdvance    = order && NEXT_STATUS[order.status] != null;
   const canCancel     = order && !['dispatched', 'cancelled'].includes(order.status);
   const isFinal       = order && ['dispatched', 'cancelled'].includes(order.status);
+  const canPick       = order && ['processing', 'picked'].includes(order.status);
 
   if (loading) {
     return (
@@ -261,11 +282,12 @@ export default function OrderDetail() {
                 <th>SKU</th>
                 <th>Requested Qty</th>
                 <th>Picked Qty</th>
+                {canPick && <th style={{ width: 160 }}>Pick</th>}
               </tr>
             </thead>
             <tbody>
               {lines.length === 0 ? (
-                <tr><td colSpan={4}>
+                <tr><td colSpan={canPick ? 5 : 4}>
                   <div className="empty-state" style={{ padding: '1.5rem' }}>
                     <div>No line items yet</div>
                     {canAddLines && <div className="text-sm">Add products below to fulfil</div>}
@@ -284,12 +306,37 @@ export default function OrderDetail() {
                           {line.picked_qty > 0 ? line.picked_qty : '—'}
                         </span>
                       </td>
+                      {canPick && (
+                        <td>
+                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                            <input
+                              className="form-input"
+                              type="number" step="0.01" min="0" max={line.qty}
+                              placeholder={`max ${line.qty}`}
+                              value={pickQtys[line.id] ?? ''}
+                              onChange={e => setPickQtys(prev => ({ ...prev, [line.id]: e.target.value }))}
+                              style={{ width: 80, padding: '0.3rem 0.5rem', fontSize: '0.82rem' }}
+                            />
+                            <button
+                              className="btn btn-secondary btn-sm"
+                              disabled={pickingId === line.id || !pickQtys[line.id]}
+                              onClick={() => pickLine(line.id, line.qty)}>
+                              {pickingId === line.id ? '…' : 'Pick'}
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   );
                 })
               )}
             </tbody>
           </table>
+          {pickError && (
+            <div style={{ padding: '0.5rem 1.25rem', color: 'var(--red)', fontSize: '0.82rem' }}>
+              {pickError}
+            </div>
+          )}
         </div>
 
         {/* Add line item form (inline, below table) */}

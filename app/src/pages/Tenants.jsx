@@ -19,6 +19,7 @@ function SkeletonRows() {
       <td><span className="skeleton" style={{ width: 120, height: 14, display: 'block' }} /></td>
       <td><span className="skeleton" style={{ width: 150, height: 14, display: 'block' }} /></td>
       <td><span className="skeleton" style={{ width: 80,  height: 14, display: 'block' }} /></td>
+      <td><span className="skeleton" style={{ width: 70,  height: 28, display: 'block', borderRadius: 6 }} /></td>
     </tr>
   ));
 }
@@ -30,10 +31,12 @@ export default function Tenants() {
   const [tenants, setTenants]     = useState([]);
   const [loading, setLoading]     = useState(true);
   const [showForm, setShowForm]   = useState(false);
+  const [editTarget, setEditTarget] = useState(null); // null = create mode, tenant obj = edit mode
   const [form, setForm]           = useState(EMPTY_FORM);
   const [saving, setSaving]       = useState(false);
   const [formError, setFormError] = useState('');
   const [fieldErr, setFieldErr]   = useState({});
+  const [deletingId, setDeletingId] = useState(null);
 
   function load() {
     setLoading(true);
@@ -45,7 +48,27 @@ export default function Tenants() {
 
   useEffect(load, []);
 
-  function openForm() { setForm(EMPTY_FORM); setFormError(''); setFieldErr({}); setShowForm(true); }
+  function openCreate() {
+    setEditTarget(null);
+    setForm(EMPTY_FORM);
+    setFormError('');
+    setFieldErr({});
+    setShowForm(true);
+  }
+
+  function openEdit(t) {
+    setEditTarget(t);
+    setForm({
+      name:          t.name          ?? '',
+      gstin:         t.gstin         ?? '',
+      contact_email: t.contact_email ?? '',
+      contact_phone: t.contact_phone ?? '',
+    });
+    setFormError('');
+    setFieldErr({});
+    setShowForm(true);
+  }
+
   function closeForm() { setShowForm(false); setFormError(''); }
 
   function handleChange(e) {
@@ -73,15 +96,32 @@ export default function Tenants() {
       const payload = { name: form.name.trim(), contact_email: form.contact_email.trim() };
       if (form.gstin)         payload.gstin         = form.gstin.toUpperCase().trim();
       if (form.contact_phone) payload.contact_phone = form.contact_phone.trim();
-      await api.post('/tenants', payload);
+
+      if (editTarget) {
+        await api.put(`/tenants/${editTarget.id}`, payload);
+      } else {
+        await api.post('/tenants', payload);
+      }
       closeForm();
       load();
     } catch (err) {
-      setFormError(err.status === 404 || err.status === 401
-        ? 'Backend not yet available — tenant endpoint coming soon.'
-        : err.message || 'Could not save tenant.');
+      setFormError(err.message || 'Could not save tenant.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete(t, e) {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${t.name}"? This cannot be undone.`)) return;
+    setDeletingId(t.id);
+    try {
+      await api.delete(`/tenants/${t.id}`);
+      load();
+    } catch (err) {
+      alert(err.message || 'Could not delete tenant.');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -93,7 +133,7 @@ export default function Tenants() {
           <h1 className="page-title">Tenants</h1>
           <p className="page-subtitle">Client companies whose goods are stored in your warehouses</p>
         </div>
-        <button className="btn btn-primary" onClick={openForm}>+ Add Tenant</button>
+        <button className="btn btn-primary" onClick={openCreate}>+ Add Tenant</button>
       </div>
 
       {/* Table */}
@@ -106,6 +146,7 @@ export default function Tenants() {
                 <th>GSTIN</th>
                 <th>Contact Email</th>
                 <th>Onboarded</th>
+                <th style={{ width: 100 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -113,12 +154,12 @@ export default function Tenants() {
                 <SkeletonRows />
               ) : tenants.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>
+                  <td colSpan={5}>
                     <div className="empty-state">
                       <div style={{ fontSize: '2rem', opacity: 0.2 }}>◫</div>
                       <div>No tenants onboarded yet</div>
                       <div className="text-sm">Add your first client to get started</div>
-                      <button className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem' }} onClick={openForm}>+ Add Tenant</button>
+                      <button className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem' }} onClick={openCreate}>+ Add Tenant</button>
                     </div>
                   </td>
                 </tr>
@@ -138,6 +179,15 @@ export default function Tenants() {
                     </td>
                     <td className="text-sm">{t.contact_email || <span className="text-muted">—</span>}</td>
                     <td className="text-muted text-sm">{formatDate(t.created_at)}</td>
+                    <td onClick={e => e.stopPropagation()} style={{ whiteSpace: 'nowrap' }}>
+                      <button className="btn btn-ghost btn-sm" style={{ marginRight: '0.25rem' }}
+                        onClick={e => { e.stopPropagation(); openEdit(t); }}>Edit</button>
+                      <button className="btn btn-danger btn-sm"
+                        disabled={deletingId === t.id}
+                        onClick={e => handleDelete(t, e)}>
+                        {deletingId === t.id ? '…' : 'Delete'}
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -146,12 +196,14 @@ export default function Tenants() {
         </div>
       </div>
 
-      {/* Slide-over */}
+      {/* Slide-over — shared for create + edit */}
       {showForm && (
         <div className="overlay" onClick={e => e.target === e.currentTarget && closeForm()}>
           <div className="slideover">
             <div className="slideover-header">
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}>Add Tenant</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}>
+                {editTarget ? 'Edit Tenant' : 'Add Tenant'}
+              </h3>
               <button className="btn btn-ghost btn-sm" onClick={closeForm}>✕</button>
             </div>
 
@@ -187,7 +239,7 @@ export default function Tenants() {
 
               <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
                 <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
-                  {saving ? 'Saving…' : 'Add Tenant'}
+                  {saving ? 'Saving…' : editTarget ? 'Save Changes' : 'Add Tenant'}
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={closeForm}>Cancel</button>
               </div>

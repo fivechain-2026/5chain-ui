@@ -3,17 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import './Warehouses.css';
 
-function formatDate(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
 function SkeletonRows() {
   return Array.from({ length: 3 }).map((_, i) => (
     <tr key={i}>
       <td><span className="skeleton" style={{ width: 160, height: 14, display: 'block', marginBottom: 5 }} /><span className="skeleton" style={{ width: 110, height: 10, display: 'block' }} /></td>
       <td><span className="skeleton" style={{ width: 80,  height: 14, display: 'block' }} /></td>
       <td><span className="skeleton" style={{ width: 60,  height: 14, display: 'block' }} /></td>
+      <td><span className="skeleton" style={{ width: 70,  height: 28, display: 'block', borderRadius: 6 }} /></td>
     </tr>
   ));
 }
@@ -25,10 +21,12 @@ export default function Warehouses() {
   const [warehouses, setWarehouses] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [form, setForm]             = useState(EMPTY_FORM);
   const [saving, setSaving]         = useState(false);
   const [formError, setFormError]   = useState('');
   const [fieldErr, setFieldErr]     = useState({});
+  const [deletingId, setDeletingId] = useState(null);
 
   function load() {
     setLoading(true);
@@ -40,7 +38,22 @@ export default function Warehouses() {
 
   useEffect(load, []);
 
-  function openForm()  { setForm(EMPTY_FORM); setFormError(''); setFieldErr({}); setShowForm(true); }
+  function openCreate() {
+    setEditTarget(null);
+    setForm(EMPTY_FORM);
+    setFormError('');
+    setFieldErr({});
+    setShowForm(true);
+  }
+
+  function openEdit(wh) {
+    setEditTarget(wh);
+    setForm({ name: wh.name ?? '', city: wh.city ?? '', state: wh.state ?? '', country: wh.country ?? 'India' });
+    setFormError('');
+    setFieldErr({});
+    setShowForm(true);
+  }
+
   function closeForm() { setShowForm(false); setFormError(''); }
 
   function handleChange(e) {
@@ -59,7 +72,11 @@ export default function Warehouses() {
       if (form.city)    payload.city    = form.city.trim();
       if (form.state)   payload.state   = form.state.trim();
       if (form.country) payload.country = form.country.trim();
-      await api.post('/warehouses', payload);
+      if (editTarget) {
+        await api.put(`/warehouses/${editTarget.id}`, payload);
+      } else {
+        await api.post('/warehouses', payload);
+      }
       closeForm();
       load();
     } catch (err) {
@@ -69,8 +86,18 @@ export default function Warehouses() {
     }
   }
 
-  function locationLabel(wh) {
-    return [wh.city, wh.state, wh.country].filter(Boolean).join(', ') || '—';
+  async function handleDelete(wh, e) {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${wh.name}"? All locations and inventory data will also be removed.`)) return;
+    setDeletingId(wh.id);
+    try {
+      await api.delete(`/warehouses/${wh.id}`);
+      load();
+    } catch (err) {
+      alert(err.message || 'Could not delete warehouse.');
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (
@@ -80,7 +107,7 @@ export default function Warehouses() {
           <h1 className="page-title">Warehouses</h1>
           <p className="page-subtitle">Physical storage facilities managed by your organisation</p>
         </div>
-        <button className="btn btn-primary" onClick={openForm}>+ Add Warehouse</button>
+        <button className="btn btn-primary" onClick={openCreate}>+ Add Warehouse</button>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -91,6 +118,7 @@ export default function Warehouses() {
                 <th>Warehouse</th>
                 <th>Location</th>
                 <th>Country</th>
+                <th style={{ width: 120 }}></th>
               </tr>
             </thead>
             <tbody>
@@ -98,12 +126,12 @@ export default function Warehouses() {
                 <SkeletonRows />
               ) : warehouses.length === 0 ? (
                 <tr>
-                  <td colSpan={3}>
+                  <td colSpan={4}>
                     <div className="empty-state">
                       <div style={{ fontSize: '2rem', opacity: 0.2 }}>⊞</div>
                       <div>No warehouses yet</div>
                       <div className="text-sm">Add your first warehouse facility</div>
-                      <button className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem' }} onClick={openForm}>+ Add Warehouse</button>
+                      <button className="btn btn-primary btn-sm" style={{ marginTop: '0.5rem' }} onClick={openCreate}>+ Add Warehouse</button>
                     </div>
                   </td>
                 </tr>
@@ -120,6 +148,15 @@ export default function Warehouses() {
                     </td>
                     <td className="text-sm text-muted">{[wh.city, wh.state].filter(Boolean).join(', ') || '—'}</td>
                     <td className="text-sm text-muted">{wh.country || '—'}</td>
+                    <td onClick={e => e.stopPropagation()} style={{ whiteSpace: 'nowrap' }}>
+                      <button className="btn btn-ghost btn-sm" style={{ marginRight: '0.25rem' }}
+                        onClick={e => { e.stopPropagation(); openEdit(wh); }}>Edit</button>
+                      <button className="btn btn-danger btn-sm"
+                        disabled={deletingId === wh.id}
+                        onClick={e => handleDelete(wh, e)}>
+                        {deletingId === wh.id ? '…' : 'Delete'}
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -132,7 +169,9 @@ export default function Warehouses() {
         <div className="overlay" onClick={e => e.target === e.currentTarget && closeForm()}>
           <div className="slideover">
             <div className="slideover-header">
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}>Add Warehouse</h3>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 400 }}>
+                {editTarget ? 'Edit Warehouse' : 'Add Warehouse'}
+              </h3>
               <button className="btn btn-ghost btn-sm" onClick={closeForm}>✕</button>
             </div>
 
@@ -167,7 +206,7 @@ export default function Warehouses() {
 
               <div style={{ marginTop: 'auto', display: 'flex', gap: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
                 <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
-                  {saving ? 'Saving…' : 'Add Warehouse'}
+                  {saving ? 'Saving…' : editTarget ? 'Save Changes' : 'Add Warehouse'}
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={closeForm}>Cancel</button>
               </div>

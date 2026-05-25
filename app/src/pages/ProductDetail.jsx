@@ -33,6 +33,7 @@ export default function ProductDetail() {
   const [tagForm, setTagForm]       = useState({ tag_type: 'barcode', tag_value: '' });
   const [addingTag, setAddingTag]   = useState(false);
   const [tagError, setTagError]     = useState('');
+  const [deleting, setDeleting]     = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -96,6 +97,18 @@ export default function ProductDetail() {
       setEditError(err.message || 'Could not update product.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function deleteProduct() {
+    if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/products/${id}`);
+      navigate('/products');
+    } catch (err) {
+      alert(err.message || 'Could not delete product.');
+      setDeleting(false);
     }
   }
 
@@ -167,7 +180,12 @@ export default function ProductDetail() {
           </div>
         </div>
         {!editing && (
-          <button className="btn btn-secondary" onClick={() => setEditing(true)}>Edit</button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-secondary" onClick={() => setEditing(true)}>Edit</button>
+            <button className="btn btn-danger btn-sm" onClick={deleteProduct} disabled={deleting}>
+              {deleting ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
         )}
       </div>
 
