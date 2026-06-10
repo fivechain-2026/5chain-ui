@@ -1,1355 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>5Chain — Warehouse Inventory Financing Platform</title>
-<meta name="description" content="5Chain turns warehouse inventory into verified, lender-ready collateral. Tamper-evident stock records. Real-time lender reports. Built for Indian logistics."/>
-<meta property="og:title" content="5Chain — Inventory Financing Platform"/>
-<meta property="og:description" content="Unlock capital against your warehouse stock. Verified inventory records. Trusted by lenders."/>
-<meta property="og:type" content="website"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5Chain — Billing that reconciles to the rupee</title>
+<meta name="description" content="The native billing engine for Indian 3PLs. Meter every storage-day, pick, pack and return. Click once at month-end. Generate GST-compliant invoices for every brand client — each line traceable to source.">
+<meta property="og:title" content="5Chain — Native billing for Indian 3PLs">
+<meta property="og:description" content="Bill thirty brand clients in one click. Every invoice reconciles to the rupee.">
 <style>
-:root {
-  --ink:     #0B0F1A;
-  --navy:    #0F1B35;
-  --navy2:   #162040;
-  --panel:   #1A2545;
-  --border:  rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.14);
-  --amber:   #E8A84C;
-  --amber2:  #C8871E;
-  --amber-bg:#2A1F08;
-  --white:   #F4F2EC;
-  --muted:   #8A93A8;
-  --green:   #4FBFA4;
-  --red:     #E86B5A;
-  --serif:   'DM Serif Display', Georgia, serif;
-  --sans:    'Instrument Sans', 'Segoe UI', sans-serif;
-  --mono:    'DM Mono', 'Courier New', monospace;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--sans);
-  background: var(--ink);
-  color: var(--white);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* ── NOISE TEXTURE OVERLAY ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: .4;
-}
-
-/* ── HEADER ── */
-.header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 3rem;
-  border-bottom: 0.5px solid var(--border);
-  background: rgba(11,15,26,0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.logo img {
-  height: 50px;
-  width: auto;
-  max-width: 200px;
-  object-fit: contain;
-  display: block;
-  border-radius: 5px;
-}
-
-.logo-mark {
-  width: 34px;
-  height: 34px;
-  background: var(--amber);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logo-mark svg { width: 18px; height: 18px; }
-
-.logo-name {
-  font-family: var(--serif);
-  font-size: 1.2rem;
-  color: var(--white);
-  letter-spacing: -0.01em;
-}
-
-.logo-domain {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  margin-top: 1px;
-}
-
-.nav { display: flex; align-items: center; gap: 2rem; }
-
-.nav a {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--muted);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-
-.nav a:hover { color: var(--white); }
-
-.btn-demo {
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  border: 1px solid var(--amber);
-  background: transparent;
-  color: var(--amber);
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  transition: all 0.2s;
-  text-decoration: none;
-}
-
-.btn-demo:hover {
-  background: var(--amber);
-  color: var(--ink);
-}
-
-/* ── HERO ── */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  padding: 8rem 3rem 5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 70% 40%, rgba(232,168,76,0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 60% at 20% 70%, rgba(15,27,53,0.8) 0%, transparent 60%),
-    linear-gradient(160deg, var(--ink) 0%, var(--navy) 50%, var(--ink) 100%);
-}
-
-/* grid lines */
-.hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 4rem;
-  align-items: center;
-}
-
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--amber);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 1.25rem;
-  padding: 4px 12px;
-  border: 0.5px solid rgba(232,168,76,0.3);
-  border-radius: 20px;
-  background: rgba(232,168,76,0.06);
-}
-
-.eyebrow-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--amber);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.7); }
-}
-
-.hero-title {
-  font-family: var(--serif);
-  font-size: clamp(2.8rem, 5vw, 4.2rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  color: var(--white);
-  margin-bottom: 1.5rem;
-}
-
-.hero-title em {
-  font-style: italic;
-  color: var(--amber);
-}
-
-.hero-body {
-  font-size: 1.05rem;
-  color: var(--muted);
-  line-height: 1.7;
-  max-width: 480px;
-  margin-bottom: 2.5rem;
-}
-
-.hero-body strong { color: var(--white); font-weight: 500; }
-
-.hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--sans);
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.75rem 1.75rem;
-  border-radius: 8px;
-  background: var(--amber);
-  color: var(--ink);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-  letter-spacing: 0.01em;
-}
-
-.btn-primary:hover { background: var(--amber2); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,168,76,0.25); }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--sans);
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.75rem 1.75rem;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--white);
-  border: 0.5px solid var(--border2);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-}
-
-.btn-secondary:hover { background: var(--panel); border-color: rgba(255,255,255,0.25); }
-
-.hero-trust {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 0.5px solid var(--border);
-  flex-wrap: wrap;
-}
-
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-family: var(--mono);
-  letter-spacing: 0.03em;
-}
-
-.trust-item .tick {
-  color: var(--green);
-  font-size: 0.85rem;
-}
-
-/* ── LENDER CARD (Hero right) ── */
-.lender-card {
-  background: var(--panel);
-  border: 0.5px solid var(--border2);
-  border-radius: 16px;
-  overflow: hidden;
-  position: relative;
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.lc-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 0.5px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.lc-title { font-size: 0.7rem; font-family: var(--mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
-
-.lc-badge {
-  font-size: 0.65rem;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: rgba(79,191,164,0.12);
-  color: var(--green);
-  font-family: var(--mono);
-  border: 0.5px solid rgba(79,191,164,0.3);
-}
-
-.lc-score-row {
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 0.5px solid var(--border);
-}
-
-.lc-score-big {
-  font-family: var(--serif);
-  font-size: 3rem;
-  color: var(--white);
-  line-height: 1;
-}
-
-.lc-score-denom { font-size: 1rem; color: var(--muted); }
-
-.lc-score-label {
-  font-size: 0.65rem;
-  color: var(--amber);
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 4px;
-}
-
-.lc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
-
-.lc-metric {
-  background: var(--panel);
-  padding: 0.875rem 1.25rem;
-}
-
-.lc-metric-val {
-  font-family: var(--serif);
-  font-size: 1.3rem;
-  color: var(--white);
-  line-height: 1.1;
-  margin-bottom: 2px;
-}
-
-.lc-metric-label { font-size: 0.65rem; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
-
-.lc-proof { padding: 1rem 1.25rem; }
-
-.lc-proof-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.72rem;
-  color: var(--muted);
-  padding: 4px 0;
-  font-family: var(--mono);
-}
-
-.proof-icon { color: var(--green); }
-
-.lc-footer {
-  padding: .875rem 1.25rem;
-  border-top: 0.5px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.lc-hash {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
-
-.lc-share-btn {
-  font-family: var(--sans);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 5px;
-  background: var(--amber);
-  color: var(--ink);
-  border: none;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-}
-
-/* ── SECTION SHARED ── */
-section { padding: 6rem 3rem; position: relative; }
-.section-inner { max-width: 1100px; margin: 0 auto; }
-
-.section-eyebrow {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: var(--amber);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.section-title {
-  font-family: var(--serif);
-  font-size: clamp(2rem, 3.5vw, 3rem);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--white);
-  margin-bottom: 1rem;
-}
-
-.section-body {
-  font-size: 1rem;
-  color: var(--muted);
-  line-height: 1.75;
-  max-width: 520px;
-}
-
-/* ── PROBLEM ── */
-.problem { background: var(--navy); }
-
-.problem-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-.problem-list { margin-top: 2.5rem; }
-
-.problem-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem 0;
-  border-bottom: 0.5px solid var(--border);
-}
-
-.problem-item:last-child { border-bottom: none; }
-
-.prob-num {
-  font-family: var(--serif);
-  font-size: 1.8rem;
-  color: var(--amber);
-  line-height: 1;
-  flex-shrink: 0;
-  opacity: 0.5;
-  width: 36px;
-}
-
-.prob-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 4px;
-}
-
-.prob-body { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
-
-.problem-visual {
-  background: var(--panel);
-  border: 0.5px solid var(--border2);
-  border-radius: 14px;
-  padding: 1.5rem;
-}
-
-.pv-title { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem; }
-
-.pv-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 0.5px solid var(--border);
-  font-size: 0.82rem;
-}
-
-.pv-item:last-child { border-bottom: none; }
-
-.pv-label { color: var(--muted); }
-.pv-val { font-family: var(--mono); }
-.pv-ok { color: var(--green); }
-.pv-bad { color: var(--red); }
-.pv-amber { color: var(--amber); }
-
-/* ── HOW IT WORKS ── */
-.how { background: var(--ink); }
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 3rem;
-}
-
-.step {
-  background: var(--panel);
-  border: 0.5px solid var(--border2);
-  border-radius: 14px;
-  padding: 1.75rem;
-  position: relative;
-  transition: border-color 0.3s;
-}
-
-.step:hover { border-color: rgba(232,168,76,0.3); }
-
-.step-num {
-  font-family: var(--serif);
-  font-size: 2.5rem;
-  color: rgba(232,168,76,0.15);
-  line-height: 1;
-  margin-bottom: 1rem;
-}
-
-.step-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--amber-bg);
-  border: 0.5px solid rgba(232,168,76,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.step-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 0.5rem;
-}
-
-.step-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
-
-.step-arrow {
-  position: absolute;
-  right: -1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--amber);
-  opacity: 0.4;
-  font-size: 1.2rem;
-  z-index: 1;
-}
-
-/* ── FEATURES ── */
-.features { background: var(--navy); }
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 0.5px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-  margin-top: 3rem;
-}
-
-.feature {
-  background: var(--navy);
-  padding: 2rem;
-  transition: background 0.2s;
-}
-
-.feature:hover { background: var(--panel); }
-
-.feature-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--amber-bg);
-  border: 0.5px solid rgba(232,168,76,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.feature-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 0.5rem;
-}
-
-.feature-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
-
-.feature-tag {
-  display: inline-block;
-  margin-top: 0.875rem;
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  padding: 2px 8px;
-  border-radius: 8px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.tag-core { background: rgba(79,191,164,0.1); color: var(--green); border: 0.5px solid rgba(79,191,164,0.2); }
-.tag-finance { background: rgba(232,168,76,0.1); color: var(--amber); border: 0.5px solid rgba(232,168,76,0.2); }
-.tag-tech { background: rgba(15,27,53,0.8); color: var(--muted); border: 0.5px solid var(--border2); }
-
-/* ── METRICS ── */
-.metrics-section {
-  background: var(--ink);
-  border-top: 0.5px solid var(--border);
-  border-bottom: 0.5px solid var(--border);
-}
-
-.metrics-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  divide-x: var(--border);
-}
-
-.metric-block {
-  padding: 3rem 2rem;
-  border-right: 0.5px solid var(--border);
-  text-align: center;
-}
-
-.metric-block:last-child { border-right: none; }
-
-.metric-val {
-  font-family: var(--serif);
-  font-size: 2.8rem;
-  color: var(--white);
-  line-height: 1;
-  margin-bottom: 0.5rem;
-}
-
-.metric-val span { color: var(--amber); }
-
-.metric-label {
-  font-size: 0.78rem;
-  color: var(--muted);
-  font-family: var(--mono);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-/* ── WHO ── */
-.who { background: var(--navy); }
-
-.who-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  margin-top: 3rem;
-}
-
-.who-card {
-  background: var(--panel);
-  border: 0.5px solid var(--border2);
-  border-radius: 14px;
-  padding: 1.75rem;
-}
-
-.who-role {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--amber);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
-}
-
-.who-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 0.75rem;
-}
-
-.who-body { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
-
-.who-benefits {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.who-benefit {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.who-benefit .tick { color: var(--green); }
-
-/* ── ROADMAP ── */
-.roadmap { background: var(--ink); }
-
-.roadmap-timeline {
-  position: relative;
-  margin-top: 3rem;
-  padding-left: 2rem;
-}
-
-.roadmap-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: linear-gradient(to bottom, var(--amber), transparent);
-}
-
-.roadmap-item {
-  position: relative;
-  padding: 1.5rem 0 1.5rem 2rem;
-  border-bottom: 0.5px solid var(--border);
-}
-
-.roadmap-item:last-child { border-bottom: none; }
-
-.roadmap-item::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: 2rem;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--amber);
-  border: 2px solid var(--ink);
-}
-
-.roadmap-phase {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--amber);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 4px;
-}
-
-.roadmap-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--white);
-  margin-bottom: 4px;
-}
-
-.roadmap-body { font-size: 0.82rem; color: var(--muted); }
-
-.roadmap-status {
-  display: inline-block;
-  margin-top: 8px;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  padding: 2px 8px;
-  border-radius: 8px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.status-building { background: rgba(232,168,76,0.12); color: var(--amber); border: 0.5px solid rgba(232,168,76,0.3); }
-.status-next { background: var(--panel); color: var(--muted); border: 0.5px solid var(--border2); }
-.status-future { background: var(--panel); color: var(--muted); border: 0.5px solid var(--border2); opacity: 0.6; }
-
-/* ── CTA ── */
-.cta-section { background: var(--navy); text-align: center; }
-
-.cta-inner {
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.cta-section .section-title { font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
-
-.cta-section .section-body { max-width: 100%; margin: 0 auto 2.5rem; }
-
-.cta-form {
-  display: flex;
-  gap: 10px;
-  max-width: 440px;
-  margin: 0 auto;
-}
-
-.cta-input {
-  flex: 1;
-  font-family: var(--sans);
-  font-size: 0.875rem;
-  padding: 0.75rem 1rem;
-  background: var(--panel);
-  border: 0.5px solid var(--border2);
-  border-radius: 8px;
-  color: var(--white);
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.cta-input::placeholder { color: var(--muted); }
-.cta-input:focus { border-color: var(--amber); }
-
-.cta-note { font-size: 0.72rem; color: var(--muted); margin-top: 1rem; font-family: var(--mono); letter-spacing: 0.03em; }
-
-/* ── FOOTER ── */
-.footer {
-  background: var(--ink);
-  border-top: 0.5px solid var(--border);
-  padding: 2.5rem 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.footer-left { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
-
-.footer-brand {
-  font-family: var(--serif);
-  font-size: 1rem;
-  color: var(--muted);
-}
-
-.footer-links { display: flex; gap: 1.5rem; }
-
-.footer-links a {
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
-  font-family: var(--mono);
-  letter-spacing: 0.03em;
-}
-
-.footer-links a:hover { color: var(--white); }
-
-.footer-right {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
-
-/* ── SUCCESS MSG ── */
-#success-msg {
-  display: none;
-  font-size: 0.82rem;
-  color: var(--green);
-  font-family: var(--mono);
-  margin-top: 1rem;
-}
-
-/* ── ANIMATIONS ── */
-.fade-up {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .header { padding: 1rem 1.5rem; }
-  .nav { display: none; }
-  .hero { padding: 7rem 1.5rem 4rem; }
-  .hero-inner { grid-template-columns: 1fr; }
-  .lender-card { display: none; }
-  section { padding: 4rem 1.5rem; }
-  .problem-grid { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr; }
-  .features-grid { grid-template-columns: 1fr; }
-  .metrics-row { grid-template-columns: 1fr 1fr; }
-  .who-grid { grid-template-columns: 1fr; }
-  .footer { padding: 2rem 1.5rem; flex-direction: column; align-items: flex-start; }
-  .cta-form { flex-direction: column; }
-}
+  /* ============ TOKENS ============
+     Palette — "ledger paper + ink + a single reconciling green"
+       ink #14110D · paper #F7F4EC · rule #DCD5C4 · stamp(green) #1F6E47
+       red #B23A2E · muted #6B6457
+     Type — Fraunces (ledger-serif display) / Spline Sans Mono (the numbers) / Inter (body)
+  */
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#14110D; --paper:#F7F4EC; --rule:#DCD5C4; --stamp:#1F6E47;
+    --red:#B23A2E; --muted:#6B6457; --paper-2:#FBF9F3;
+    --mono:'Spline Sans Mono',ui-monospace,monospace;
+    --disp:'Fraunces',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);
+    font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:var(--stamp);color:var(--paper)}
+  a{color:inherit;text-decoration:none}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted)}
+
+  /* ============ NAV ============ */
+  nav{position:sticky;top:0;z-index:50;background:rgba(247,244,236,.82);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+  .nav-in{max-width:1120px;margin:0 auto;padding:16px 28px;
+    display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center}
+  .brand img{height:72px;width:auto;display:block}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-size:14.5px;color:var(--muted);transition:color .2s}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{font-family:var(--mono);font-size:13px;border:1px solid var(--ink);
+    padding:8px 16px;border-radius:2px;color:var(--ink);transition:.2s}
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+  @media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
+
+  /* ============ HERO ============ */
+  .hero{padding:90px 0 40px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  @media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+  .hero h1{font-family:var(--disp);font-weight:600;font-size:clamp(40px,6vw,68px);
+    line-height:1.02;letter-spacing:-.025em;margin:22px 0 0}
+  .hero h1 em{font-style:italic;color:var(--stamp)}
+  .hero .sub{font-size:19px;color:var(--muted);max-width:30em;margin:24px 0 32px;line-height:1.55}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn-primary{background:var(--ink);color:var(--paper);font-family:var(--mono);
+    font-size:14px;padding:14px 26px;border-radius:2px;border:1px solid var(--ink);
+    cursor:pointer;transition:.2s;letter-spacing:.02em}
+  .btn-primary:hover{background:transparent;color:var(--ink)}
+  .btn-ghost{font-family:var(--mono);font-size:14px;color:var(--muted);
+    padding:14px 4px;border-bottom:1px solid transparent;transition:.2s}
+  .btn-ghost:hover{color:var(--ink);border-bottom-color:var(--ink)}
+
+  /* ---- the signature: a live reconciling invoice ---- */
+  .ledger{background:var(--paper-2);border:1px solid var(--rule);border-radius:4px;
+    box-shadow:0 1px 0 var(--rule),0 18px 40px -28px rgba(20,17,13,.4);
+    font-family:var(--mono);font-size:13px;overflow:hidden}
+  .ledger-head{display:flex;justify-content:space-between;align-items:center;
+    padding:14px 18px;border-bottom:1px solid var(--rule);background:var(--paper)}
+  .ledger-head .who{font-weight:500}
+  .ledger-head .pd{color:var(--muted);font-size:11px}
+  .ledger-rows{padding:6px 0}
+  .lrow{display:grid;grid-template-columns:1fr auto auto;gap:14px;
+    padding:8px 18px;align-items:baseline;border-bottom:1px dashed var(--rule);
+    opacity:0;transform:translateY(6px);animation:drop .5s forwards}
+  .lrow:last-child{border-bottom:none}
+  .lrow .desc{color:var(--ink)}
+  .lrow .desc small{color:var(--muted);font-size:10.5px;display:block;margin-top:1px}
+  .lrow .qty{color:var(--muted);font-size:11.5px;text-align:right;white-space:nowrap}
+  .lrow .amt{font-weight:500;text-align:right;white-space:nowrap}
+  @keyframes drop{to{opacity:1;transform:none}}
+  .ledger-foot{border-top:1px solid var(--ink);padding:14px 18px;
+    display:flex;justify-content:space-between;align-items:center;background:var(--paper)}
+  .ledger-foot .lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .ledger-foot .tot{font-weight:600;font-size:17px}
+  .recon{display:inline-flex;align-items:center;gap:7px;margin-top:14px;
+    font-family:var(--mono);font-size:12px;color:var(--stamp);
+    opacity:0;animation:drop .5s 1.5s forwards}
+  .recon .tick{width:15px;height:15px;border:1.5px solid var(--stamp);border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+  .stat-strip{display:flex;gap:30px;margin-top:34px;flex-wrap:wrap}
+  .stat .n{font-family:var(--disp);font-size:30px;font-weight:600;letter-spacing:-.02em}
+  .stat .n em{color:var(--stamp);font-style:normal}
+  .stat .l{font-family:var(--mono);font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+  /* ============ SECTIONS ============ */
+  section{padding:78px 0;border-top:1px solid var(--rule)}
+  .sec-head{max-width:36em;margin-bottom:48px}
+  .sec-head h2{font-family:var(--disp);font-weight:600;font-size:clamp(28px,4vw,40px);
+    line-height:1.08;letter-spacing:-.02em;margin:14px 0 0}
+  .sec-head p{color:var(--muted);margin-top:16px;font-size:17.5px}
+
+  .nightmare{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+    background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+  @media(max-width:760px){.nightmare{grid-template-columns:1fr}}
+  .ncell{background:var(--paper);padding:26px 24px}
+  .ncell .c{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .ncell .big{font-family:var(--disp);font-size:34px;font-weight:600;
+    letter-spacing:-.02em;margin:6px 0 8px}
+  .ncell.bad .big{color:var(--red)}
+  .ncell p{font-size:14.5px;color:var(--muted);line-height:1.5}
+
+  /* ============ HOW (the pipeline) ============ */
+  .pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+  @media(max-width:860px){.pipe{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.pipe{grid-template-columns:1fr}}
+  .step{padding:28px 24px;border-right:1px solid var(--rule);background:var(--paper-2);position:relative}
+  .step:last-child{border-right:none}
+  @media(max-width:860px){.step:nth-child(2){border-right:none}}
+  .step .num{font-family:var(--mono);font-size:11px;color:var(--stamp);letter-spacing:.1em}
+  .step h3{font-family:var(--disp);font-size:20px;font-weight:600;margin:12px 0 8px;letter-spacing:-.01em}
+  .step p{font-size:14px;color:var(--muted);line-height:1.55}
+  .step .arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);
+    width:18px;height:18px;background:var(--paper);border:1px solid var(--rule);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:var(--muted);z-index:2}
+  @media(max-width:860px){.step .arrow{display:none}}
+
+  /* ============ FEATURES ============ */
+  .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+  @media(max-width:760px){.feat{grid-template-columns:1fr}}
+  .fcard{border:1px solid var(--rule);border-radius:4px;padding:30px;background:var(--paper-2);
+    transition:.25s;position:relative}
+  .fcard:hover{border-color:var(--ink);transform:translateY(-2px)}
+  .fcard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--stamp)}
+  .fcard h3{font-family:var(--disp);font-size:23px;font-weight:600;margin:12px 0 10px;
+    letter-spacing:-.01em;line-height:1.15}
+  .fcard p{font-size:15px;color:var(--muted);line-height:1.55}
+  .fcard .chip{display:inline-block;font-family:var(--mono);font-size:11px;
+    border:1px solid var(--rule);padding:3px 9px;border-radius:2px;margin:14px 6px 0 0;color:var(--ink)}
+
+  /* ============ DEFENSE ============ */
+  .defense{background:var(--ink);color:var(--paper);border-radius:6px;padding:54px 48px;
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  @media(max-width:760px){.defense{grid-template-columns:1fr;padding:36px 28px;gap:30px}}
+  .defense h2{font-family:var(--disp);font-size:clamp(26px,3.5vw,36px);font-weight:600;
+    line-height:1.1;letter-spacing:-.02em}
+  .defense h2 em{color:#7FD3A6;font-style:italic}
+  .defense p{color:#C9C2B2;margin-top:18px;font-size:16px}
+  .trace{font-family:var(--mono);font-size:12.5px;background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);border-radius:4px;padding:20px}
+  .trace .line{display:flex;gap:10px;padding:6px 0;color:#C9C2B2}
+  .trace .line span:first-child{color:#7FD3A6}
+  .trace .line.head{color:var(--paper);border-bottom:1px solid rgba(255,255,255,.14);
+    margin-bottom:6px;padding-bottom:10px}
+
+  /* ============ CTA ============ */
+  .endcta{text-align:center;padding:88px 0}
+  .endcta h2{font-family:var(--disp);font-size:clamp(30px,5vw,52px);font-weight:600;
+    letter-spacing:-.025em;line-height:1.05;max-width:14em;margin:0 auto}
+  .endcta h2 em{font-style:italic;color:var(--stamp)}
+  .endcta p{color:var(--muted);margin:20px auto 32px;max-width:30em}
+  .endcta form{display:flex;gap:10px;max-width:440px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .endcta input{flex:1;min-width:220px;font-family:var(--mono);font-size:14px;
+    padding:14px 16px;border:1px solid var(--ink);border-radius:2px;background:var(--paper-2);color:var(--ink)}
+  .endcta input:focus{outline:2px solid var(--stamp);outline-offset:1px}
+
+  /* ============ FOOTER ============ */
+  footer{border-top:1px solid var(--rule);padding:40px 0 60px}
+  .foot-in{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap}
+  .foot-in .mono{font-size:12.5px;color:var(--muted);line-height:1.9}
+  .foot-note{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:30em;margin-top:18px;line-height:1.6}
+
+  /* ============ HAMBURGER ============ */
+  .nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;
+    cursor:pointer;background:none;border:none;padding:4px;z-index:51}
+  .nav-toggle span{display:block;width:22px;height:2px;background:var(--ink);
+    border-radius:2px;transition:transform .25s,opacity .25s}
+  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .nav-toggle.open span:nth-child(2){opacity:0}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  /* ============ MOBILE BREAKPOINTS ============ */
+  @media(max-width:760px){
+    .nav-in{padding:12px 20px}
+    .brand img{height:52px}
+    .nav-toggle{display:flex}
+
+    /* Full-screen mobile nav */
+    .nav-links{
+      display:none;position:fixed;inset:0;
+      background:var(--paper);flex-direction:column;
+      align-items:center;justify-content:center;gap:36px;z-index:50
+    }
+    .nav-links.open{display:flex}
+    .nav-links a:not(.nav-cta){display:block;font-size:22px;color:var(--ink)}
+    .nav-cta{font-size:16px;padding:12px 28px}
+  }
+
+  @media(max-width:640px){
+    .wrap{padding:0 20px}
+    .hero{padding:60px 0 32px}
+    .hero .sub{font-size:16px;margin:18px 0 24px}
+    .hero-ctas{flex-direction:column;align-items:flex-start;gap:10px}
+    .btn-primary,.btn-ghost{width:100%;text-align:center;padding:14px 20px}
+    .stat-strip{gap:18px}
+    .stat .n{font-size:24px}
+
+    section{padding:48px 0}
+    .sec-head{margin-bottom:32px}
+    .sec-head p{font-size:16px}
+
+    .endcta{padding:56px 0}
+    .endcta form{flex-direction:column}
+    .endcta input{min-width:0;width:100%}
+    .endcta .btn-primary{width:100%;text-align:center}
+
+    .foot-in{flex-direction:column;gap:24px}
+    .foot-in .brand img{height:48px}
+  }
+
+  @media(max-width:480px){
+    /* Ledger: hide qty col on tiny screens to prevent overflow */
+    .lrow{grid-template-columns:1fr auto;gap:8px}
+    .lrow .qty{display:none}
+    .ledger-head .pd{display:none}
+    .ledger{font-size:12px}
+
+    /* Defense trace block */
+    .trace{font-size:11.5px;padding:14px 12px}
+    .trace .line{gap:6px;flex-wrap:wrap}
+
+    /* Nightmare cells */
+    .ncell .big{font-size:28px}
+
+    /* Step cards full-width inner padding */
+    .step{padding:22px 18px}
+
+    /* Feature cards */
+    .fcard{padding:22px 18px}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .lrow,.recon{opacity:1;transform:none}
+  }
 </style>
 </head>
-
 <body>
 
-<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
-<header class="header">
-  <a href="#" class="logo">
-  <img src="Logo1.png" alt="5Chain">
-</a>
+<nav>
+  <div class="nav-in">
+    <div class="brand"><img src="Logo1.png" alt="5Chain"></div>
+    <button class="nav-toggle" aria-label="Toggle menu" onclick="this.classList.toggle('open');document.getElementById('nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="nav-links">
+      <a href="#problem" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">The problem</a>
+      <a href="#how" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">How it works</a>
+      <a href="#engine" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">The engine</a>
+      <a href="#start" class="nav-cta" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">Book a pilot</a>
+    </div>
+  </div>
+</nav>
 
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Native billing for Indian 3PLs</div>
+      <h1>Bill thirty brand clients in <em>one click.</em></h1>
+      <p class="sub">5Chain meters every storage-day, pick, pack, receipt and return in your warehouse — then turns a month of operations into clean, GST-compliant invoices. Every line traceable to the event that created it.</p>
+      <div class="hero-ctas">
+        <a href="#start"><button class="btn-primary">Book a pilot &rarr;</button></a>
+        <a href="#how" class="btn-ghost">See how it reconciles</a>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><div class="n"><em>82%</em></div><div class="l">of 3PLs leak revenue<br>to uncaptured charges*</div></div>
+        <div class="stat"><div class="n">1 click</div><div class="l">month-end run,<br>every client invoiced</div></div>
+        <div class="stat"><div class="n">to the &#8377;</div><div class="l">every invoice reconciles<br>to source events</div></div>
+      </div>
+    </div>
 
-  <nav class="nav">
-    <a href="#problem">Problem</a>
-    <a href="#how">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#who">Who is it for</a>
-    <a href="#roadmap">Roadmap</a>
-  </nav>
-
-  <a href="#cta" class="btn-demo">Request early access</a>
+    <!-- SIGNATURE: a live reconciling invoice -->
+    <div>
+      <div class="ledger" aria-label="Example auto-generated invoice">
+        <div class="ledger-head">
+          <span class="who">INV &middot; Lumi&egrave;re Skincare Pvt Ltd</span>
+          <span class="pd">May 2026 &middot; auto</span>
+        </div>
+        <div class="ledger-rows">
+          <div class="lrow" style="animation-delay:.2s">
+            <span class="desc">Storage &mdash; pallet-days<small>SAC 996729 &middot; daily snapshot &times;31</small></span>
+            <span class="qty">412 pd &times; &#8377;18.00</span>
+            <span class="amt">&#8377;7,416.00</span>
+          </div>
+          <div class="lrow" style="animation-delay:.5s">
+            <span class="desc">Outbound &mdash; units picked<small>SAC 998540</small></span>
+            <span class="qty">9,140 &times; &#8377;2.10</span>
+            <span class="amt">&#8377;19,194.00</span>
+          </div>
+          <div class="lrow" style="animation-delay:.8s">
+            <span class="desc">Pack &amp; label<small>SAC 998540</small></span>
+            <span class="qty">3,205 &times; &#8377;6.50</span>
+            <span class="amt">&#8377;20,832.50</span>
+          </div>
+          <div class="lrow" style="animation-delay:1.1s">
+            <span class="desc">RTO returns + QC<small>photo-proof attached</small></span>
+            <span class="qty">288 &times; &#8377;14.00</span>
+            <span class="amt">&#8377;4,032.00</span>
+          </div>
+        </div>
+        <div class="ledger-foot">
+          <span class="lbl">Subtotal + 18% GST</span>
+          <span class="tot">&#8377;60,517.71</span>
+        </div>
+      </div>
+      <div class="recon"><span class="tick">&#10003;</span> Reconciled to 12,733 source events &mdash; zero unmatched</div>
+    </div>
+  </div>
 </header>
 
-<!-- ═══ HERO ═══════════════════════════════════════════════ -->
-<section class="hero" id="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-eyebrow">
-        <span class="eyebrow-dot"></span>
-        Early access · Bengaluru, India
-      </div>
-
-      <h1 class="hero-title">
-        Your warehouse stock<br>
-        is <em>collateral</em>.<br>
-        We make lenders<br>
-        believe it.
-      </h1>
-
-      <p class="hero-body">
-        5Chain turns warehouse inventory into <strong>verified, lender-ready proof</strong>.
-        Tamper-evident stock records. Real-time collateral reports.
-        Built for Indian warehouse operators who can't access working capital — despite sitting on crores of inventory.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#cta" class="btn-primary">
-          Get early access
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <a href="#how" class="btn-secondary">See how it works</a>
-      </div>
-
-      <div class="hero-trust">
-        <div class="trust-item"><span class="tick">✓</span> Tamper-evident ledger</div>
-        <div class="trust-item"><span class="tick">✓</span> FIFO stock valuation</div>
-        <div class="trust-item"><span class="tick">✓</span> Shareable lender reports</div>
-        <div class="trust-item"><span class="tick">✓</span> Multi-tenant isolation</div>
-      </div>
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Why this exists</div>
+      <h2>A 3PL handles five clients comfortably. At thirty, billing becomes a spreadsheet nightmare.</h2>
+      <p>Storage by volume, charges per pick and pack, returns to inspect, rate cards that change mid-month &mdash; reconciled by hand in Excel, the night before invoices go out. Mistakes cost the relationship. Missed charges cost the margin.</p>
     </div>
-
-    <!-- Floating lender card -->
-    <div class="lender-card">
-      <div class="lc-header">
-        <div class="lc-title">Lender trust report · 5C-RPT-2026-WW01</div>
-        <div class="lc-badge">● Verified</div>
+    <div class="nightmare">
+      <div class="ncell">
+        <div class="c">5 clients</div>
+        <div class="big">Manageable</div>
+        <p>A few tabs in a sheet. One person keeps it in their head. It works &mdash; barely.</p>
       </div>
-
-      <div class="lc-score-row">
-        <div>
-          <div class="lc-score-big">91<span class="lc-score-denom">/100</span></div>
-          <div class="lc-score-label">Trust score</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-family:var(--serif);font-size:1.5rem;color:var(--white)">₹63.2L</div>
-          <div style="font-size:0.65rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em">Eligible collateral</div>
-        </div>
+      <div class="ncell">
+        <div class="c">15 clients</div>
+        <div class="big">Spreadsheets multiply</div>
+        <p>Rate cards drift. Storage math gets fuzzy. Month-end starts eating whole days.</p>
       </div>
-
-      <div class="lc-metrics">
-        <div class="lc-metric">
-          <div class="lc-metric-val">₹84.3L</div>
-          <div class="lc-metric-label">Stock value</div>
-        </div>
-        <div class="lc-metric">
-          <div class="lc-metric-val">30</div>
-          <div class="lc-metric-label">Days verified</div>
-        </div>
-        <div class="lc-metric">
-          <div class="lc-metric-val">412</div>
-          <div class="lc-metric-label">Audit events</div>
-        </div>
-        <div class="lc-metric">
-          <div class="lc-metric-val" style="color:var(--green)">0</div>
-          <div class="lc-metric-label">Anomalies</div>
-        </div>
-      </div>
-
-      <div class="lc-proof">
-        <div class="lc-proof-item"><span class="proof-icon">✓</span> 30/30 days continuously logged</div>
-        <div class="lc-proof-item"><span class="proof-icon">✓</span> All movements operator-signed</div>
-        <div class="lc-proof-item"><span class="proof-icon">✓</span> No retroactive edits — hash-verified</div>
-        <div class="lc-proof-item"><span class="proof-icon">✓</span> Physical audit on record</div>
-      </div>
-
-      <div class="lc-footer">
-        <div class="lc-hash">hash: a3f9c2d1...e91b4</div>
-        <button class="lc-share-btn">Share with lender ↗</button>
+      <div class="ncell bad">
+        <div class="c">30 clients</div>
+        <div class="big">Revenue leaks</div>
+        <p>Charges go uncaptured. Disputes pile up. The 3PL is financing its own clients without knowing it.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ PROBLEM ═══════════════════════════════════════════════ -->
-<section class="problem" id="problem">
-  <div class="section-inner">
-    <div class="problem-grid">
+<!-- ================= HOW ================= -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Events in. Invoices out. Nothing typed twice.</h2>
+      <p>5Chain sits on top of the operations you already run. Feed it events from your WMS, a CSV, or our floor app &mdash; it does the rest.</p>
+    </div>
+    <div class="pipe">
+      <div class="step">
+        <div class="num">01 &middot; METER</div>
+        <h3>Capture every billable event</h3>
+        <p>Storage snapshots daily; picks, packs, receipts and returns as they happen. Sent twice? Counted once &mdash; idempotency is enforced at the database.</p>
+        <div class="arrow">&rarr;</div>
+      </div>
+      <div class="step">
+        <div class="num">02 &middot; RATE</div>
+        <h3>Apply each client's rate card</h3>
+        <p>Per-brand pricing with effective dates and minimum monthly commitments. Last month's rates stay frozen on last month's invoice.</p>
+        <div class="arrow">&rarr;</div>
+      </div>
+      <div class="step">
+        <div class="num">03 &middot; INVOICE</div>
+        <h3>One click, every client</h3>
+        <p>Draft per brand, drill into any line down to its source events, approve, finalize. GST split and IRN generated through a licensed GSP.</p>
+        <div class="arrow">&rarr;</div>
+      </div>
+      <div class="step">
+        <div class="num">04 &middot; SHARE</div>
+        <h3>Brands see their own bill</h3>
+        <p>Each client logs into a portal showing only their charges and invoices &mdash; accrued in real time, downloadable, disputable against the line.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENGINE / FEATURES ================= -->
+<section id="engine">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">The engine</div>
+      <h2>Built for the thing that touches your money.</h2>
+      <p>Other platforms bolt billing on as an afterthought, or leave it to Excel. 5Chain is the billing engine first &mdash; operations feed it, never the reverse.</p>
+    </div>
+    <div class="feat">
+      <div class="fcard">
+        <div class="tag">Storage + activity</div>
+        <h3>Bill space and effort, precisely</h3>
+        <p>Charge storage by pallet, bin, cubic-foot or square-foot per day, and activity by pick, pack, receipt, order or return. Mix and match per client.</p>
+        <span class="chip">pallet-days</span><span class="chip">cubic-ft</span><span class="chip">per-pick</span><span class="chip">RTO + QC</span>
+      </div>
+      <div class="fcard">
+        <div class="tag">GST &amp; e-invoicing</div>
+        <h3>Compliant, gap-less, immutable</h3>
+        <p>Correct CGST/SGST/IGST from place of supply, HSN/SAC per charge, IRN through a licensed GSP. Finalized invoices never change &mdash; corrections are credit notes, as the law requires.</p>
+        <span class="chip">IRN + QR</span><span class="chip">credit notes</span><span class="chip">gap-less numbering</span>
+      </div>
+      <div class="fcard">
+        <div class="tag">Traceability</div>
+        <h3>Every line defends itself</h3>
+        <p>Click any charge and see the exact events that produced it. When a brand disputes an invoice, the answer is on the screen, not in a week of email.</p>
+        <span class="chip">line &rarr; source</span><span class="chip">audit trail</span>
+      </div>
+      <div class="fcard">
+        <div class="tag">Onboard fast</div>
+        <h3>Add a new client in days, not weeks</h3>
+        <p>Toggle a client's rate card, packaging rules and COD handling without a developer or a consultant. New brand signed Monday, billing Wednesday.</p>
+        <span class="chip">no-code rate cards</span><span class="chip">no setup fee</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEFENSE ================= -->
+<section>
+  <div class="wrap">
+    <div class="defense">
       <div>
-        <div class="section-eyebrow">The problem</div>
-        <h2 class="section-title">Crores of stock.<br>Zero credit.</h2>
-        <p class="section-body">India's warehouse operators sit on billions of rupees of inventory they can't borrow against. Not because the stock isn't there — but because lenders can't verify it.</p>
-
-        <div class="problem-list">
-          <div class="problem-item">
-            <div class="prob-num">01</div>
-            <div>
-              <div class="prob-title">Records that can't be trusted</div>
-              <div class="prob-body">Paper stock registers, WhatsApp photos, and Excel sheets are falsifiable. Lenders know it — so they discount or reject.</div>
-            </div>
-          </div>
-          <div class="problem-item">
-            <div class="prob-num">02</div>
-            <div>
-              <div class="prob-title">Verification takes weeks</div>
-              <div class="prob-body">Physical audits cost ₹50,000+ and take 2–3 weeks. By the time credit is approved, the working capital crisis has passed.</div>
-            </div>
-          </div>
-          <div class="problem-item">
-            <div class="prob-num">03</div>
-            <div>
-              <div class="prob-title">No standard proof format</div>
-              <div class="prob-body">Every NBFC asks for different documents. There is no universal, lender-accepted format for warehouse inventory proof.</div>
-            </div>
-          </div>
-        </div>
+        <div class="eyebrow" style="color:#7FD3A6">Dispute defense</div>
+        <h2>An invoice that <em>proves itself.</em></h2>
+        <p>The brand says "we never shipped that many." You open the line. There are the 9,140 picks, each with a timestamp and a source reference, reconciling to the rupee. The conversation ends in seconds &mdash; and you keep the charge.</p>
       </div>
-
-      <div class="problem-visual fade-up">
-        <div class="pv-title">Traditional inventory financing</div>
-        <div class="pv-item"><span class="pv-label">Verification method</span><span class="pv-val pv-bad">Physical audit</span></div>
-        <div class="pv-item"><span class="pv-label">Time to credit</span><span class="pv-val pv-bad">3–6 weeks</span></div>
-        <div class="pv-item"><span class="pv-label">Verification cost</span><span class="pv-val pv-bad">₹40,000–1L</span></div>
-        <div class="pv-item"><span class="pv-label">Record tamper-proof</span><span class="pv-val pv-bad">No</span></div>
-        <div class="pv-item"><span class="pv-label">Real-time visibility</span><span class="pv-val pv-bad">None</span></div>
-        <div style="height:.75rem;border-bottom:0.5px solid var(--border);margin:.25rem 0"></div>
-        <div class="pv-title" style="margin-top:.75rem">With 5Chain</div>
-        <div class="pv-item"><span class="pv-label">Verification method</span><span class="pv-val pv-ok">Cryptographic proof</span></div>
-        <div class="pv-item"><span class="pv-label">Time to credit</span><span class="pv-val pv-ok">Same day</span></div>
-        <div class="pv-item"><span class="pv-label">Verification cost</span><span class="pv-val pv-ok">₹0 (included)</span></div>
-        <div class="pv-item"><span class="pv-label">Record tamper-proof</span><span class="pv-val pv-ok">Yes — hash chain</span></div>
-        <div class="pv-item"><span class="pv-label">Real-time visibility</span><span class="pv-val pv-ok">Continuous</span></div>
+      <div class="trace">
+        <div class="line head"><span>LINE</span><span>Outbound &mdash; units picked &middot; &#8377;19,194.00</span></div>
+        <div class="line"><span>&#8627;</span><span>evt 8831c&hellip; &middot; pick &middot; qty 6 &middot; 02 May 09:14</span></div>
+        <div class="line"><span>&#8627;</span><span>evt 8832a&hellip; &middot; pick &middot; qty 12 &middot; 02 May 09:17</span></div>
+        <div class="line"><span>&#8627;</span><span>evt 8833f&hellip; &middot; pick &middot; qty 4 &middot; 02 May 09:21</span></div>
+        <div class="line"><span>&middot;</span><span>&hellip;9,137 more events</span></div>
+        <div class="line"><span>=</span><span>9,140 units &middot; 0 unmatched &middot; &#10003; reconciled</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ HOW IT WORKS ═══════════════════════════════════════════════ -->
-<section class="how" id="how">
-  <div class="section-inner">
-    <div class="section-eyebrow">How it works</div>
-    <h2 class="section-title">Three steps to<br>lender-ready inventory</h2>
-
-    <div class="steps">
-      <div class="step fade-up">
-        <div class="step-num">01</div>
-        <div class="step-icon">📦</div>
-        <div class="step-title">Log every movement</div>
-        <div class="step-body">Warehouse operators log every stock-in and stock-out through 5Chain. Every entry is timestamped, operator-signed, and locked with a cryptographic hash. Nothing can be edited after submission.</div>
-        <div class="step-arrow">→</div>
-      </div>
-      <div class="step fade-up" style="transition-delay:.1s">
-        <div class="step-num">02</div>
-        <div class="step-icon">🔐</div>
-        <div class="step-title">System builds proof</div>
-        <div class="step-body">5Chain continuously calculates FIFO stock valuation, applies LTV ratios per SKU category, and generates a trust score based on 30 days of verified activity. No manual work required.</div>
-        <div class="step-arrow">→</div>
-      </div>
-      <div class="step fade-up" style="transition-delay:.2s">
-        <div class="step-num">03</div>
-        <div class="step-icon">📊</div>
-        <div class="step-title">Share with lender</div>
-        <div class="step-body">One click generates a shareable, time-limited lender report with collateral breakdown, audit trail, and verification proofs. The lender sees exactly what they need to approve credit — in minutes.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FEATURES ═══════════════════════════════════════════════ -->
-<section class="features" id="features">
-  <div class="section-inner">
-    <div class="section-eyebrow">Platform features</div>
-    <h2 class="section-title">Everything a lender<br>needs to say yes</h2>
-
-    <div class="features-grid">
-      <div class="feature fade-up">
-        <div class="feature-icon">🔗</div>
-        <div class="feature-title">Immutable audit log</div>
-        <div class="feature-body">Every stock event is hash-chained to the previous one. Any tampering breaks the chain instantly — detectable by any party. 30 days of continuous history builds undeniable credibility.</div>
-        <span class="feature-tag tag-core">Core trust layer</span>
-      </div>
-      <div class="feature fade-up" style="transition-delay:.1s">
-        <div class="feature-icon">₹</div>
-        <div class="feature-title">FIFO stock valuation</div>
-        <div class="feature-body">Batch-level FIFO and WAC valuation with automatic LTV application per SKU category. Agri gets 75% LTV. FMCG gets 70%. Packaging is excluded. Every number is auditable to its source GRN.</div>
-        <span class="feature-tag tag-finance">Finance layer</span>
-      </div>
-      <div class="feature fade-up" style="transition-delay:.2s">
-        <div class="feature-icon">📋</div>
-        <div class="feature-title">Goods receipt notes (GRN)</div>
-        <div class="feature-body">Every inbound shipment creates a QC-verified GRN before stock is credited. Supplier, vehicle, PO reference, and inspector sign-off are all captured and locked.</div>
-        <span class="feature-tag tag-core">Inbound module</span>
-      </div>
-      <div class="feature fade-up" style="transition-delay:.3s">
-        <div class="feature-icon">🏢</div>
-        <div class="feature-title">Multi-tenant isolation</div>
-        <div class="feature-body">Multiple suppliers can store goods in the same warehouse. Each sees only their own inventory. Isolation is enforced at the database level via Row Level Security — not just the UI.</div>
-        <span class="feature-tag tag-tech">Architecture</span>
-      </div>
-      <div class="feature fade-up" style="transition-delay:.1s">
-        <div class="feature-icon">🔑</div>
-        <div class="feature-title">Token-gated lender access</div>
-        <div class="feature-body">Share a time-limited, read-only link with any NBFC or lender. No account required. Links expire automatically. Revocable in one click. Lenders see exactly what you choose to share.</div>
-        <span class="feature-tag tag-finance">Lender layer</span>
-      </div>
-      <div class="feature fade-up" style="transition-delay:.2s">
-        <div class="feature-icon">📡</div>
-        <div class="feature-title">Blockchain settlement (Phase 4)</div>
-        <div class="feature-body">Hyperledger Fabric L1 settlement with ZK-Rollup scaling. Mathematical proof of inventory state for multi-party trust — without revealing competitor data. The moat that takes 18 months to build.</div>
-        <span class="feature-tag tag-tech">Coming · Phase 4</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ METRICS ═══════════════════════════════════════════════ -->
-<section class="metrics-section">
-  <div class="section-inner">
-    <div class="metrics-row">
-      <div class="metric-block fade-up">
-        <div class="metric-val">₹<span>63L</span></div>
-        <div class="metric-label">Avg collateral per warehouse</div>
-      </div>
-      <div class="metric-block fade-up" style="transition-delay:.1s">
-        <div class="metric-val"><span>30</span>d</div>
-        <div class="metric-label">To build lender trust score</div>
-      </div>
-      <div class="metric-block fade-up" style="transition-delay:.2s">
-        <div class="metric-val"><span>0</span></div>
-        <div class="metric-label">Physical audits needed</div>
-      </div>
-      <div class="metric-block fade-up" style="transition-delay:.3s">
-        <div class="metric-val"><span>₹0</span></div>
-        <div class="metric-label">Verification cost</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ WHO ═══════════════════════════════════════════════ -->
-<section class="who" id="who">
-  <div class="section-inner">
-    <div class="section-eyebrow">Who is 5Chain for</div>
-    <h2 class="section-title">Three parties.<br>One source of truth.</h2>
-
-    <div class="who-grid">
-      <div class="who-card fade-up">
-        <div class="who-role">Warehouse operators</div>
-        <div class="who-title">Unlock capital you already have</div>
-        <div class="who-body">You have crores of inventory but can't borrow against it. 5Chain builds the proof automatically — 30 days of verified records that any NBFC can trust.</div>
-        <div class="who-benefits">
-          <div class="who-benefit"><span class="tick">✓</span> No manual documentation</div>
-          <div class="who-benefit"><span class="tick">✓</span> Share reports in one click</div>
-          <div class="who-benefit"><span class="tick">✓</span> Know your collateral value daily</div>
-        </div>
-      </div>
-      <div class="who-card fade-up" style="transition-delay:.1s">
-        <div class="who-role">NBFCs &amp; lenders</div>
-        <div class="who-title">Verify inventory without sending anyone</div>
-        <div class="who-body">Stop paying for physical audits. 5Chain gives you a continuously verified inventory picture — with a trust score, LTV-adjusted collateral value, and a full audit trail.</div>
-        <div class="who-benefits">
-          <div class="who-benefit"><span class="tick">✓</span> Same-day credit decisions</div>
-          <div class="who-benefit"><span class="tick">✓</span> Tamper-evident collateral proof</div>
-          <div class="who-benefit"><span class="tick">✓</span> FIFO valuation, not self-reported</div>
-        </div>
-      </div>
-      <div class="who-card fade-up" style="transition-delay:.2s">
-        <div class="who-role">Supplier tenants</div>
-        <div class="who-title">Track your stock in any warehouse</div>
-        <div class="who-body">Your goods are stored in a third-party warehouse. 5Chain gives you a real-time view of your own stock — isolated from other tenants — and a record of every movement.</div>
-        <div class="who-benefits">
-          <div class="who-benefit"><span class="tick">✓</span> Real-time stock visibility</div>
-          <div class="who-benefit"><span class="tick">✓</span> Full movement history</div>
-          <div class="who-benefit"><span class="tick">✓</span> Data isolation from other tenants</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ ROADMAP ═══════════════════════════════════════════════ -->
-<section class="roadmap" id="roadmap">
-  <div class="section-inner">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start">
-      <div>
-        <div class="section-eyebrow">Product roadmap</div>
-        <h2 class="section-title">From WMS to<br>5PL platform</h2>
-        <p class="section-body">We're building in phases — each unlocked by real customer need, not ambition. The blockchain and ZK cryptography architecture comes last, earned through real usage.</p>
-      </div>
-
-      <div class="roadmap-timeline fade-up">
-        <div class="roadmap-item">
-          <div class="roadmap-phase">Phase 1 · Now</div>
-          <div class="roadmap-title">Inventory trust MVP</div>
-          <div class="roadmap-body">WMS core — stock entry, GRN, SKU master, audit log, FIFO valuation, lender report, auth + multi-tenant</div>
-          <span class="roadmap-status status-building">Building now</span>
-        </div>
-        <div class="roadmap-item">
-          <div class="roadmap-phase">Phase 2 · Q3 2026</div>
-          <div class="roadmap-title">Operational completeness</div>
-          <div class="roadmap-body">Purchase orders, sales orders, dispatch, cycle counting, collateral scoring engine, mobile app, e-way bill</div>
-          <span class="roadmap-status status-next">Next</span>
-        </div>
-        <div class="roadmap-item">
-          <div class="roadmap-phase">Phase 3 · Q4 2026</div>
-          <div class="roadmap-title">NBFC integration</div>
-          <div class="roadmap-body">Lender portal, in-app financing applications, KredX / Vayana API integration, IoT sensor anchoring</div>
-          <span class="roadmap-status status-next">Planned</span>
-        </div>
-        <div class="roadmap-item">
-          <div class="roadmap-phase">Phase 4 · 2027</div>
-          <div class="roadmap-title">Blockchain settlement</div>
-          <div class="roadmap-body">Hyperledger Fabric L1, ZK-Rollup scaling, multi-warehouse network, demand forecasting AI</div>
-          <span class="roadmap-status status-future">Future</span>
-        </div>
-        <div class="roadmap-item">
-          <div class="roadmap-phase">Phase 5 · 2027+</div>
-          <div class="roadmap-title">5PL + tokenisation</div>
-          <div class="roadmap-body">ZK privacy proofs, ERC-3643 warehouse receipt tokens, fractional investor access, full 5PL orchestration</div>
-          <span class="roadmap-status status-future">Vision</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CTA ═══════════════════════════════════════════════ -->
-<section class="cta-section" id="cta">
-  <div class="section-inner cta-inner">
-    <div class="section-eyebrow" style="text-align:center">Early access · Limited pilots</div>
-    <h2 class="section-title">Be the first warehouse<br>to <em>prove</em> your stock</h2>
-    <p class="section-body" style="text-align:center;margin:0 auto 2.5rem">We're onboarding 5 pilot warehouses in Bengaluru. If you have inventory you can't borrow against — or you're a lender looking for verified collateral — get in touch.</p>
-
-    <form class="cta-form" onsubmit="handleSubmit(event)">
-      <input class="cta-input" type="email" placeholder="your@email.com" required id="email-input"/>
-      <button type="submit" class="btn-primary" style="white-space:nowrap">
-        Request access →
-      </button>
+<!-- ================= CTA ================= -->
+<section id="start" class="endcta">
+  <div class="wrap">
+    <div class="eyebrow">Now onboarding pilot 3PLs &middot; Bengaluru</div>
+    <h2>Stop reconciling invoices <em>by hand.</em></h2>
+    <p>We're running pilots with mid-market 3PLs serving D2C brands. Bring a month of your real events &mdash; we'll show you invoices that reconcile to the rupee.</p>
+    <form onsubmit="event.preventDefault(); var b=this.querySelector('button'); b.textContent='Thanks — we will be in touch'; b.disabled=true;">
+      <input type="email" placeholder="you@your3pl.com" required aria-label="Work email">
+      <button class="btn-primary" type="submit">Request pilot access</button>
     </form>
-    <div id="success-msg">✓ Got it. We'll be in touch within 48 hours.</div>
-    <div class="cta-note">No spam. No sales calls unless you ask. Just a conversation.</div>
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
-<footer class="footer">
-  <div class="footer-left">
-    <div class="footer-brand">5Chain</div>
-    <div class="footer-links">
-      <a href="#problem">Problem</a>
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#roadmap">Roadmap</a>
-      <a href="mailto:contact@fivechain.in">contact@fivechain.in</a>
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap foot-in">
+    <div>
+      <div class="brand"><img src="Logo1.png" alt="5Chain"></div>
+      <div class="foot-note">The native billing engine for Indian third-party logistics. Built so a 3PL can bill every brand client correctly, on time, and without an argument.</div>
+    </div>
+    <div class="mono">
+      <a href="#problem">The problem &rarr;</a><br>
+      <a href="#how">How it works &rarr;</a><br>
+      <a href="#engine">The engine &rarr;</a><br>
+      <a href="#start">Book a pilot &rarr;</a>
+    </div>
+    <div class="mono">
+      fivechain.in<br>
+      Bengaluru, India<br>
+      contact@fivechain.in
     </div>
   </div>
-  <div class="footer-right">© 2026 5Chain · fivechain.in · Bengaluru, India</div>
+  <div class="wrap" style="margin-top:30px">
+    <div class="foot-note">*Industry benchmark: a majority of 3PL warehouses lose revenue to uncaptured storage, receiving and shipping charges. Figures in the sample invoice are illustrative. &copy; 2026 5Chain.</div>
+  </div>
 </footer>
-
-<script>
-// Scroll animations
-const observer = new IntersectionObserver(
-  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-  { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-);
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-// Form submit
-function handleSubmit(e) {
-  e.preventDefault();
-  const email = document.getElementById('email-input').value;
-  const msg = document.getElementById('success-msg');
-  const btn = e.target.querySelector('button[type=submit]');
-  btn.textContent = 'Sending...';
-  btn.disabled = true;
-  setTimeout(() => {
-    msg.style.display = 'block';
-    e.target.style.display = 'none';
-    // In production: POST to your API / Supabase / Formspree
-    console.log('Early access request:', email);
-  }, 800);
-}
-
-// Smooth active nav
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav a');
-window.addEventListener('scroll', () => {
-  let current = '';
-  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
-  navLinks.forEach(a => {
-    a.style.color = a.getAttribute('href') === '#' + current ? 'var(--white)' : '';
-  });
-}, { passive: true });
-</script>
 
 </body>
 </html>
