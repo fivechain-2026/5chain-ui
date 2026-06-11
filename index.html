@@ -3,22 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>5Chain — Billing that reconciles to the rupee</title>
-<meta name="description" content="The native billing engine for Indian 3PLs. Meter every storage-day, pick, pack and return. Click once at month-end. Generate GST-compliant invoices for every brand client — each line traceable to source.">
-<meta property="og:title" content="5Chain — Native billing for Indian 3PLs">
-<meta property="og:description" content="Bill thirty brand clients in one click. Every invoice reconciles to the rupee.">
+<title>5Chain — Cloud WMS for Indian 3PLs, with billing built in</title>
+<meta name="description" content="5Chain is a cloud warehouse management platform for Indian 3PLs. Run the floor, manage every brand client, and — at its core — a billing engine that meters every storage-day, pick, pack and return and generates GST-compliant invoices in one click.">
+<meta property="og:title" content="5Chain — Cloud WMS for Indian 3PLs">
+<meta property="og:description" content="A cloud WMS platform whose core is a 3PL billing engine. Bill thirty brand clients in one click — every invoice reconciles to the rupee.">
 <style>
-  /* ============ TOKENS ============
-     Palette — "ledger paper + ink + a single reconciling green"
-       ink #14110D · paper #F7F4EC · rule #DCD5C4 · stamp(green) #1F6E47
-       red #B23A2E · muted #6B6457
-     Type — Fraunces (ledger-serif display) / Spline Sans Mono (the numbers) / Inter (body)
-  */
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap');
-
   :root{
     --ink:#14110D; --paper:#F7F4EC; --rule:#DCD5C4; --stamp:#1F6E47;
-    --red:#B23A2E; --muted:#6B6457; --paper-2:#FBF9F3;
+    --teal:#1E9E78; --navy:#0C2E4E; --red:#B23A2E; --muted:#6B6457; --paper-2:#FBF9F3;
     --mono:'Spline Sans Mono',ui-monospace,monospace;
     --disp:'Fraunces',Georgia,serif;
     --body:'Inter',system-ui,sans-serif;
@@ -29,19 +22,21 @@
     font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   ::selection{background:var(--stamp);color:var(--paper)}
   a{color:inherit;text-decoration:none}
-
   .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
   .mono{font-family:var(--mono)}
   .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--muted)}
 
-  /* ============ NAV ============ */
+  /* NAV */
   nav{position:sticky;top:0;z-index:50;background:rgba(247,244,236,.82);
     backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
-  .nav-in{max-width:1120px;margin:0 auto;padding:16px 28px;
+  .nav-in{max-width:1120px;margin:0 auto;padding:13px 28px;
     display:flex;align-items:center;justify-content:space-between}
-  .brand{display:flex;align-items:center}
-  .brand img{height:72px;width:auto;display:block}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand img{height:68px;width:auto;display:block}
+  .brand .wordmark{font-family:var(--disp);font-weight:600;font-size:21px;
+    letter-spacing:-.01em}
+  .brand .wordmark .five{color:var(--stamp)}
   .nav-links{display:flex;gap:30px;align-items:center}
   .nav-links a{font-size:14.5px;color:var(--muted);transition:color .2s}
   .nav-links a:hover{color:var(--ink)}
@@ -50,14 +45,14 @@
   .nav-cta:hover{background:var(--ink);color:var(--paper)}
   @media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
 
-  /* ============ HERO ============ */
-  .hero{padding:90px 0 40px;position:relative}
+  /* HERO */
+  .hero{padding:84px 0 40px}
   .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
   @media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:40px}}
-  .hero h1{font-family:var(--disp);font-weight:600;font-size:clamp(40px,6vw,68px);
-    line-height:1.02;letter-spacing:-.025em;margin:22px 0 0}
+  .hero h1{font-family:var(--disp);font-weight:600;font-size:clamp(38px,5.6vw,62px);
+    line-height:1.04;letter-spacing:-.025em;margin:20px 0 0}
   .hero h1 em{font-style:italic;color:var(--stamp)}
-  .hero .sub{font-size:19px;color:var(--muted);max-width:30em;margin:24px 0 32px;line-height:1.55}
+  .hero .sub{font-size:18.5px;color:var(--muted);max-width:31em;margin:22px 0 30px;line-height:1.55}
   .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
   .btn-primary{background:var(--ink);color:var(--paper);font-family:var(--mono);
     font-size:14px;padding:14px 26px;border-radius:2px;border:1px solid var(--ink);
@@ -67,7 +62,6 @@
     padding:14px 4px;border-bottom:1px solid transparent;transition:.2s}
   .btn-ghost:hover{color:var(--ink);border-bottom-color:var(--ink)}
 
-  /* ---- the signature: a live reconciling invoice ---- */
   .ledger{background:var(--paper-2);border:1px solid var(--rule);border-radius:4px;
     box-shadow:0 1px 0 var(--rule),0 18px 40px -28px rgba(20,17,13,.4);
     font-family:var(--mono);font-size:13px;overflow:hidden}
@@ -100,24 +94,37 @@
   .stat .l{font-family:var(--mono);font-size:11px;color:var(--muted);
     text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
 
-  /* ============ SECTIONS ============ */
-  section{padding:78px 0;border-top:1px solid var(--rule)}
-  .sec-head{max-width:36em;margin-bottom:48px}
+  section{padding:74px 0;border-top:1px solid var(--rule)}
+  .sec-head{max-width:37em;margin-bottom:46px}
   .sec-head h2{font-family:var(--disp);font-weight:600;font-size:clamp(28px,4vw,40px);
     line-height:1.08;letter-spacing:-.02em;margin:14px 0 0}
   .sec-head p{color:var(--muted);margin-top:16px;font-size:17.5px}
+
+  /* platform module row */
+  .modules{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--paper-2)}
+  @media(max-width:860px){.modules{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.modules{grid-template-columns:1fr}}
+  .mod{padding:24px 22px;border-right:1px solid var(--rule);position:relative}
+  .mod:last-child{border-right:none}
+  @media(max-width:860px){.mod:nth-child(2){border-right:none}}
+  .mod .k{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+  .mod h3{font-family:var(--disp);font-size:18px;font-weight:600;margin:9px 0 7px;letter-spacing:-.01em}
+  .mod.core h3{color:var(--stamp)}
+  .mod p{font-size:13px;color:var(--muted);line-height:1.5}
+  .mod .core-tag{display:inline-block;font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:2px;padding:1px 6px;margin-bottom:8px}
 
   .nightmare{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
     background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
   @media(max-width:760px){.nightmare{grid-template-columns:1fr}}
   .ncell{background:var(--paper);padding:26px 24px}
   .ncell .c{font-family:var(--mono);font-size:12px;color:var(--muted)}
-  .ncell .big{font-family:var(--disp);font-size:34px;font-weight:600;
-    letter-spacing:-.02em;margin:6px 0 8px}
+  .ncell .big{font-family:var(--disp);font-size:34px;font-weight:600;letter-spacing:-.02em;margin:6px 0 8px}
   .ncell.bad .big{color:var(--red)}
   .ncell p{font-size:14.5px;color:var(--muted);line-height:1.5}
 
-  /* ============ HOW (the pipeline) ============ */
   .pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
     border:1px solid var(--rule);border-radius:4px;overflow:hidden}
   @media(max-width:860px){.pipe{grid-template-columns:1fr 1fr}}
@@ -134,154 +141,123 @@
     font-family:var(--mono);font-size:11px;color:var(--muted);z-index:2}
   @media(max-width:860px){.step .arrow{display:none}}
 
-  /* ============ FEATURES ============ */
   .feat{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
   @media(max-width:760px){.feat{grid-template-columns:1fr}}
-  .fcard{border:1px solid var(--rule);border-radius:4px;padding:30px;background:var(--paper-2);
-    transition:.25s;position:relative}
+  .fcard{border:1px solid var(--rule);border-radius:4px;padding:30px;background:var(--paper-2);transition:.25s}
   .fcard:hover{border-color:var(--ink);transform:translateY(-2px)}
-  .fcard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--stamp)}
-  .fcard h3{font-family:var(--disp);font-size:23px;font-weight:600;margin:12px 0 10px;
-    letter-spacing:-.01em;line-height:1.15}
+  .fcard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--stamp)}
+  .fcard h3{font-family:var(--disp);font-size:23px;font-weight:600;margin:12px 0 10px;letter-spacing:-.01em;line-height:1.15}
   .fcard p{font-size:15px;color:var(--muted);line-height:1.55}
   .fcard .chip{display:inline-block;font-family:var(--mono);font-size:11px;
     border:1px solid var(--rule);padding:3px 9px;border-radius:2px;margin:14px 6px 0 0;color:var(--ink)}
 
-  /* ============ DEFENSE ============ */
   .defense{background:var(--ink);color:var(--paper);border-radius:6px;padding:54px 48px;
     display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
   @media(max-width:760px){.defense{grid-template-columns:1fr;padding:36px 28px;gap:30px}}
-  .defense h2{font-family:var(--disp);font-size:clamp(26px,3.5vw,36px);font-weight:600;
-    line-height:1.1;letter-spacing:-.02em}
+  .defense h2{font-family:var(--disp);font-size:clamp(26px,3.5vw,36px);font-weight:600;line-height:1.1;letter-spacing:-.02em}
   .defense h2 em{color:#7FD3A6;font-style:italic}
   .defense p{color:#C9C2B2;margin-top:18px;font-size:16px}
   .trace{font-family:var(--mono);font-size:12.5px;background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.14);border-radius:4px;padding:20px}
   .trace .line{display:flex;gap:10px;padding:6px 0;color:#C9C2B2}
   .trace .line span:first-child{color:#7FD3A6}
-  .trace .line.head{color:var(--paper);border-bottom:1px solid rgba(255,255,255,.14);
-    margin-bottom:6px;padding-bottom:10px}
+  .trace .line.head{color:var(--paper);border-bottom:1px solid rgba(255,255,255,.14);margin-bottom:6px;padding-bottom:10px}
 
-  /* ============ CTA ============ */
-  .endcta{text-align:center;padding:88px 0}
-  .endcta h2{font-family:var(--disp);font-size:clamp(30px,5vw,52px);font-weight:600;
-    letter-spacing:-.025em;line-height:1.05;max-width:14em;margin:0 auto}
+  .endcta{text-align:center;padding:84px 0}
+  .endcta h2{font-family:var(--disp);font-size:clamp(30px,5vw,52px);font-weight:600;letter-spacing:-.025em;line-height:1.05;max-width:14em;margin:0 auto}
   .endcta h2 em{font-style:italic;color:var(--stamp)}
   .endcta p{color:var(--muted);margin:20px auto 32px;max-width:30em}
-  .endcta form{display:flex;gap:10px;max-width:440px;margin:0 auto;flex-wrap:wrap;justify-content:center}
-  .endcta input{flex:1;min-width:220px;font-family:var(--mono);font-size:14px;
+  .endcta form{display:flex;gap:10px;max-width:460px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .endcta input{flex:1;min-width:230px;font-family:var(--mono);font-size:14px;
     padding:14px 16px;border:1px solid var(--ink);border-radius:2px;background:var(--paper-2);color:var(--ink)}
   .endcta input:focus{outline:2px solid var(--stamp);outline-offset:1px}
+  .endcta .or{margin-top:16px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .endcta .or a{color:var(--stamp);border-bottom:1px solid var(--stamp)}
 
-  /* ============ FOOTER ============ */
-  footer{border-top:1px solid var(--rule);padding:40px 0 60px}
+  footer{border-top:1px solid var(--rule);padding:42px 0 60px;background:var(--paper-2)}
   .foot-in{display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap}
-  .foot-in .mono{font-size:12.5px;color:var(--muted);line-height:1.9}
-  .foot-note{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:30em;margin-top:18px;line-height:1.6}
+  .foot-brand img{height:80px;width:auto;display:block;margin-bottom:14px}
+  .foot-note{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:28em;line-height:1.7}
+  .foot-col .h{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--stamp);margin-bottom:12px}
+  .foot-col a, .foot-col div{display:block;font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:2;transition:color .2s}
+  .foot-col a:hover{color:var(--ink)}
+  .foot-legal{font-family:var(--mono);font-size:10.5px;color:var(--muted);max-width:34em;margin-top:26px;line-height:1.6}
 
-  /* ============ HAMBURGER ============ */
-  .nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;
-    cursor:pointer;background:none;border:none;padding:4px;z-index:51}
-  .nav-toggle span{display:block;width:22px;height:2px;background:var(--ink);
-    border-radius:2px;transition:transform .25s,opacity .25s}
-  .nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-  .nav-toggle.open span:nth-child(2){opacity:0}
-  .nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-
-  /* ============ MOBILE BREAKPOINTS ============ */
+  /* TABLET (≤760px) */
   @media(max-width:760px){
-    .nav-in{padding:12px 20px}
-    .brand img{height:52px}
-    .nav-toggle{display:flex}
-
-    /* Full-screen mobile nav */
-    .nav-links{
-      display:none;position:fixed;inset:0;
-      background:var(--paper);flex-direction:column;
-      align-items:center;justify-content:center;gap:36px;z-index:50
-    }
-    .nav-links.open{display:flex}
-    .nav-links a:not(.nav-cta){display:block;font-size:22px;color:var(--ink)}
-    .nav-cta{font-size:16px;padding:12px 28px}
-  }
-
-  @media(max-width:640px){
-    .wrap{padding:0 20px}
-    .hero{padding:60px 0 32px}
-    .hero .sub{font-size:16px;margin:18px 0 24px}
-    .hero-ctas{flex-direction:column;align-items:flex-start;gap:10px}
-    .btn-primary,.btn-ghost{width:100%;text-align:center;padding:14px 20px}
-    .stat-strip{gap:18px}
-    .stat .n{font-size:24px}
-
+    .wrap{padding:0 18px}
+    .hero{padding:52px 0 32px}
     section{padding:48px 0}
-    .sec-head{margin-bottom:32px}
-    .sec-head p{font-size:16px}
-
     .endcta{padding:56px 0}
-    .endcta form{flex-direction:column}
-    .endcta input{min-width:0;width:100%}
-    .endcta .btn-primary{width:100%;text-align:center}
-
-    .foot-in{flex-direction:column;gap:24px}
-    .foot-in .brand img{height:48px}
+    .hero .sub{font-size:17px}
+    .sec-head p{font-size:16px}
+    .sec-head{margin-bottom:32px}
+    .defense p{font-size:15px}
+    .foot-in{gap:20px}
   }
 
+  /* MOBILE (≤480px) */
   @media(max-width:480px){
-    /* Ledger: hide qty col on tiny screens to prevent overflow */
+    .wrap{padding:0 14px}
+    .nav-in{padding:10px 14px}
+    .brand img{height:44px}
+    .hero{padding:36px 0 24px}
+    section{padding:36px 0}
+    .endcta{padding:44px 0}
+    .hero .sub{font-size:16px;margin:14px 0 20px}
+    .hero-ctas{flex-direction:column;align-items:stretch}
+    .hero-ctas a{display:block}
+    .hero-ctas .btn-primary{text-align:center;width:100%}
+    .hero-ctas .btn-ghost{text-align:center;padding:12px 4px}
+    .stat-strip{gap:16px}
+    .stat .n{font-size:24px}
+    .ledger{font-size:12px}
+    .ledger-head{flex-wrap:wrap;gap:4px}
     .lrow{grid-template-columns:1fr auto;gap:8px}
     .lrow .qty{display:none}
-    .ledger-head .pd{display:none}
-    .ledger{font-size:12px}
-
-    /* Defense trace block */
-    .trace{font-size:11.5px;padding:14px 12px}
-    .trace .line{gap:6px;flex-wrap:wrap}
-
-    /* Nightmare cells */
+    .trace{font-size:11px;padding:14px 12px}
+    .defense{padding:26px 18px}
+    .fcard{padding:20px}
+    .endcta form{flex-direction:column;align-items:stretch}
+    .endcta input{min-width:0;width:100%}
+    .endcta form .btn-primary{width:100%;text-align:center}
+    .foot-brand img{height:56px}
+    .foot-in{flex-direction:column;gap:28px}
+    .ncell{padding:20px 18px}
     .ncell .big{font-size:28px}
-
-    /* Step cards full-width inner padding */
     .step{padding:22px 18px}
-
-    /* Feature cards */
-    .fcard{padding:22px 18px}
+    .mod{padding:20px 16px}
   }
 
-  @media(prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important}
-    .lrow,.recon{opacity:1;transform:none}
-  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.lrow,.recon{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 
 <nav>
   <div class="nav-in">
-    <div class="brand"><img src="Logo1.png" alt="5Chain"></div>
-    <button class="nav-toggle" aria-label="Toggle menu" onclick="this.classList.toggle('open');document.getElementById('nav-links').classList.toggle('open')">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="nav-links" id="nav-links">
-      <a href="#problem" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">The problem</a>
-      <a href="#how" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">How it works</a>
-      <a href="#engine" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">The engine</a>
-      <a href="#start" class="nav-cta" onclick="document.getElementById('nav-links').classList.remove('open');document.querySelector('.nav-toggle').classList.remove('open')">Book a pilot</a>
+    <div class="brand">
+      <img src="5chain-ui/Logo1.png" alt="5Chain logo">
+    </div>
+    <div class="nav-links">
+      <a href="#platform">Platform</a>
+      <a href="#problem">The problem</a>
+      <a href="#billing">Billing engine</a>
+      <a href="#start" class="nav-cta">Book a pilot</a>
     </div>
   </div>
 </nav>
 
-<!-- ================= HERO ================= -->
+<!-- HERO -->
 <header class="hero">
   <div class="wrap hero-grid">
     <div>
-      <div class="eyebrow">Native billing for Indian 3PLs</div>
-      <h1>Bill thirty brand clients in <em>one click.</em></h1>
-      <p class="sub">5Chain meters every storage-day, pick, pack, receipt and return in your warehouse — then turns a month of operations into clean, GST-compliant invoices. Every line traceable to the event that created it.</p>
+      <div class="eyebrow">Cloud WMS platform for Indian 3PLs</div>
+      <h1>The warehouse OS that <em>gets you paid.</em></h1>
+      <p class="sub">5Chain runs the whole floor - inventory, multi-client operations, picks and packs. And at its core sits the one thing every other WMS treats as an afterthought: a billing engine that turns a month of operations into clean, GST-compliant invoices for every brand client, in one click.</p>
       <div class="hero-ctas">
         <a href="#start"><button class="btn-primary">Book a pilot &rarr;</button></a>
-        <a href="#how" class="btn-ghost">See how it reconciles</a>
+        <a href="#billing" class="btn-ghost">See the billing engine</a>
       </div>
       <div class="stat-strip">
         <div class="stat"><div class="n"><em>82%</em></div><div class="l">of 3PLs leak revenue<br>to uncaptured charges*</div></div>
@@ -289,22 +265,20 @@
         <div class="stat"><div class="n">to the &#8377;</div><div class="l">every invoice reconciles<br>to source events</div></div>
       </div>
     </div>
-
-    <!-- SIGNATURE: a live reconciling invoice -->
     <div>
       <div class="ledger" aria-label="Example auto-generated invoice">
         <div class="ledger-head">
           <span class="who">INV &middot; Lumi&egrave;re Skincare Pvt Ltd</span>
-          <span class="pd">May 2026 &middot; auto</span>
+          <span class="pd">MAY 2026 &middot; AUTO</span>
         </div>
         <div class="ledger-rows">
           <div class="lrow" style="animation-delay:.2s">
-            <span class="desc">Storage &mdash; pallet-days<small>SAC 996729 &middot; daily snapshot &times;31</small></span>
+            <span class="desc">Storage - pallet-days<small>SAC 996729 &middot; daily snapshot &times;31</small></span>
             <span class="qty">412 pd &times; &#8377;18.00</span>
             <span class="amt">&#8377;7,416.00</span>
           </div>
           <div class="lrow" style="animation-delay:.5s">
-            <span class="desc">Outbound &mdash; units picked<small>SAC 998540</small></span>
+            <span class="desc">Outbound - units picked<small>SAC 998540</small></span>
             <span class="qty">9,140 &times; &#8377;2.10</span>
             <span class="amt">&#8377;19,194.00</span>
           </div>
@@ -324,82 +298,84 @@
           <span class="tot">&#8377;60,517.71</span>
         </div>
       </div>
-      <div class="recon"><span class="tick">&#10003;</span> Reconciled to 12,733 source events &mdash; zero unmatched</div>
+      <div class="recon"><span class="tick">&#10003;</span> Reconciled to 12,733 source events - zero unmatched</div>
     </div>
   </div>
 </header>
 
-<!-- ================= PROBLEM ================= -->
+<!-- PLATFORM -->
+<section id="platform">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">The platform</div>
+      <h2>A full cloud WMS - with the billing engine at its core.</h2>
+      <p>Most warehouse software stops at operations and leaves billing to a spreadsheet. 5Chain is built the other way round: every scan and storage-day feeds a billing core, so the system that runs your floor is the same system that gets you paid.</p>
+    </div>
+    <div class="modules">
+      <div class="mod">
+        <div class="k">MODULE 01</div>
+        <h3>Inventory &amp; bins</h3>
+        <p>Real-time stock by SKU, batch and location across every brand you store.</p>
+      </div>
+      <div class="mod">
+        <div class="k">MODULE 02</div>
+        <h3>Floor operations</h3>
+        <p>Receiving, putaway, picks, packs and returns - captured as they happen.</p>
+      </div>
+      <div class="mod">
+        <div class="k">MODULE 03</div>
+        <h3>Multi-client tenancy</h3>
+        <p>One warehouse, many brands - each isolated, each with its own rules and views.</p>
+      </div>
+      <div class="mod core">
+        <div class="core-tag">Core</div>
+        <h3>Billing engine</h3>
+        <p>Every event becomes a charge. One click turns the month into per-client invoices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
 <section id="problem">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">Why this exists</div>
-      <h2>A 3PL handles five clients comfortably. At thirty, billing becomes a spreadsheet nightmare.</h2>
-      <p>Storage by volume, charges per pick and pack, returns to inspect, rate cards that change mid-month &mdash; reconciled by hand in Excel, the night before invoices go out. Mistakes cost the relationship. Missed charges cost the margin.</p>
+      <div class="eyebrow">Why the core is billing</div>
+      <h2>A 3PL handles five clients fine. At thirty, billing breaks.</h2>
+      <p>Storage by volume, charges per pick and pack, returns to inspect, rate cards that change mid-month - reconciled by hand in Excel, the night before invoices go out. Mistakes cost the relationship. Missed charges cost the margin. No WMS on the market solves this cleanly - so we made it the heart of ours.</p>
     </div>
     <div class="nightmare">
-      <div class="ncell">
-        <div class="c">5 clients</div>
-        <div class="big">Manageable</div>
-        <p>A few tabs in a sheet. One person keeps it in their head. It works &mdash; barely.</p>
-      </div>
-      <div class="ncell">
-        <div class="c">15 clients</div>
-        <div class="big">Spreadsheets multiply</div>
-        <p>Rate cards drift. Storage math gets fuzzy. Month-end starts eating whole days.</p>
-      </div>
-      <div class="ncell bad">
-        <div class="c">30 clients</div>
-        <div class="big">Revenue leaks</div>
-        <p>Charges go uncaptured. Disputes pile up. The 3PL is financing its own clients without knowing it.</p>
-      </div>
+      <div class="ncell"><div class="c">5 clients</div><div class="big">Manageable</div><p>A few tabs in a sheet. One person keeps it in their head. It works - barely.</p></div>
+      <div class="ncell"><div class="c">15 clients</div><div class="big">Spreadsheets multiply</div><p>Rate cards drift. Storage math gets fuzzy. Month-end starts eating whole days.</p></div>
+      <div class="ncell bad"><div class="c">30 clients</div><div class="big">Revenue leaks</div><p>Charges go uncaptured. Disputes pile up. The 3PL is financing its own clients without knowing it.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ================= HOW ================= -->
-<section id="how">
+<!-- BILLING ENGINE / HOW -->
+<section id="billing">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">How it works</div>
+      <div class="eyebrow">The billing engine</div>
       <h2>Events in. Invoices out. Nothing typed twice.</h2>
-      <p>5Chain sits on top of the operations you already run. Feed it events from your WMS, a CSV, or our floor app &mdash; it does the rest.</p>
+      <p>Because billing lives inside the WMS, there is no second system and no double entry. The floor feeds the invoice automatically.</p>
     </div>
     <div class="pipe">
-      <div class="step">
-        <div class="num">01 &middot; METER</div>
-        <h3>Capture every billable event</h3>
-        <p>Storage snapshots daily; picks, packs, receipts and returns as they happen. Sent twice? Counted once &mdash; idempotency is enforced at the database.</p>
-        <div class="arrow">&rarr;</div>
-      </div>
-      <div class="step">
-        <div class="num">02 &middot; RATE</div>
-        <h3>Apply each client's rate card</h3>
-        <p>Per-brand pricing with effective dates and minimum monthly commitments. Last month's rates stay frozen on last month's invoice.</p>
-        <div class="arrow">&rarr;</div>
-      </div>
-      <div class="step">
-        <div class="num">03 &middot; INVOICE</div>
-        <h3>One click, every client</h3>
-        <p>Draft per brand, drill into any line down to its source events, approve, finalize. GST split and IRN generated through a licensed GSP.</p>
-        <div class="arrow">&rarr;</div>
-      </div>
-      <div class="step">
-        <div class="num">04 &middot; SHARE</div>
-        <h3>Brands see their own bill</h3>
-        <p>Each client logs into a portal showing only their charges and invoices &mdash; accrued in real time, downloadable, disputable against the line.</p>
-      </div>
+      <div class="step"><div class="num">01 &middot; METER</div><h3>Capture every billable event</h3><p>Storage snapshots daily; picks, packs, receipts and returns as they happen. Sent twice? Counted once - idempotency is enforced at the database.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="num">02 &middot; RATE</div><h3>Apply each client's rate card</h3><p>Per-brand pricing with effective dates and minimum monthly commitments. Last month's rates stay frozen on last month's invoice.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="num">03 &middot; INVOICE</div><h3>One click, every client</h3><p>Draft per brand, drill into any line down to its source events, approve, finalize. GST split and IRN generated through a licensed GSP.</p><div class="arrow">&rarr;</div></div>
+      <div class="step"><div class="num">04 &middot; SHARE</div><h3>Brands see their own bill</h3><p>Each client logs into a portal showing only their charges and invoices - accrued in real time, downloadable, disputable against the line.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ================= ENGINE / FEATURES ================= -->
-<section id="engine">
+<!-- FEATURES -->
+<section>
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">The engine</div>
+      <div class="eyebrow">What the billing core does</div>
       <h2>Built for the thing that touches your money.</h2>
-      <p>Other platforms bolt billing on as an afterthought, or leave it to Excel. 5Chain is the billing engine first &mdash; operations feed it, never the reverse.</p>
+      <p>The capabilities that make 5Chain's billing core impossible to replicate with a spreadsheet bolted onto a generic WMS.</p>
     </div>
     <div class="feat">
       <div class="fcard">
@@ -411,7 +387,7 @@
       <div class="fcard">
         <div class="tag">GST &amp; e-invoicing</div>
         <h3>Compliant, gap-less, immutable</h3>
-        <p>Correct CGST/SGST/IGST from place of supply, HSN/SAC per charge, IRN through a licensed GSP. Finalized invoices never change &mdash; corrections are credit notes, as the law requires.</p>
+        <p>Correct CGST/SGST/IGST from place of supply, HSN/SAC per charge, IRN through a licensed GSP. Finalized invoices never change - corrections are credit notes, as the law requires.</p>
         <span class="chip">IRN + QR</span><span class="chip">credit notes</span><span class="chip">gap-less numbering</span>
       </div>
       <div class="fcard">
@@ -430,17 +406,17 @@
   </div>
 </section>
 
-<!-- ================= DEFENSE ================= -->
+<!-- DISPUTE DEFENSE -->
 <section>
   <div class="wrap">
     <div class="defense">
       <div>
         <div class="eyebrow" style="color:#7FD3A6">Dispute defense</div>
         <h2>An invoice that <em>proves itself.</em></h2>
-        <p>The brand says "we never shipped that many." You open the line. There are the 9,140 picks, each with a timestamp and a source reference, reconciling to the rupee. The conversation ends in seconds &mdash; and you keep the charge.</p>
+        <p>The brand says "we never shipped that many." You open the line. There are the 9,140 picks, each with a timestamp and a source reference, reconciling to the rupee. The conversation ends in seconds - and you keep the charge.</p>
       </div>
       <div class="trace">
-        <div class="line head"><span>LINE</span><span>Outbound &mdash; units picked &middot; &#8377;19,194.00</span></div>
+        <div class="line head"><span>LINE</span><span>Outbound - units picked &middot; &#8377;19,194.00</span></div>
         <div class="line"><span>&#8627;</span><span>evt 8831c&hellip; &middot; pick &middot; qty 6 &middot; 02 May 09:14</span></div>
         <div class="line"><span>&#8627;</span><span>evt 8832a&hellip; &middot; pick &middot; qty 12 &middot; 02 May 09:17</span></div>
         <div class="line"><span>&#8627;</span><span>evt 8833f&hellip; &middot; pick &middot; qty 4 &middot; 02 May 09:21</span></div>
@@ -451,40 +427,43 @@
   </div>
 </section>
 
-<!-- ================= CTA ================= -->
+<!-- CTA -->
 <section id="start" class="endcta">
   <div class="wrap">
     <div class="eyebrow">Now onboarding pilot 3PLs &middot; Bengaluru</div>
-    <h2>Stop reconciling invoices <em>by hand.</em></h2>
-    <p>We're running pilots with mid-market 3PLs serving D2C brands. Bring a month of your real events &mdash; we'll show you invoices that reconcile to the rupee.</p>
+    <h2>Run your warehouse on the WMS that <em>bills for you.</em></h2>
+    <p>We're running pilots with mid-market 3PLs serving D2C brands. Bring a month of your real events - we'll show you invoices that reconcile to the rupee.</p>
     <form onsubmit="event.preventDefault(); var b=this.querySelector('button'); b.textContent='Thanks — we will be in touch'; b.disabled=true;">
       <input type="email" placeholder="you@your3pl.com" required aria-label="Work email">
       <button class="btn-primary" type="submit">Request pilot access</button>
     </form>
+    <div class="or">or email us directly at <a href="mailto:contact@fivechain.in">contact@fivechain.in</a></div>
   </div>
 </section>
 
-<!-- ================= FOOTER ================= -->
+<!-- FOOTER -->
 <footer>
   <div class="wrap foot-in">
-    <div>
-      <div class="brand"><img src="Logo1.png" alt="5Chain"></div>
-      <div class="foot-note">The native billing engine for Indian third-party logistics. Built so a 3PL can bill every brand client correctly, on time, and without an argument.</div>
+    <div class="foot-brand">
+      <img src="5chain-ui/Logo1.png" alt="5Chain">
+      <div class="foot-note">The cloud WMS for Indian third-party logistics - with a billing engine at its core, so a 3PL can bill every brand client correctly, on time, and without an argument.</div>
     </div>
-    <div class="mono">
-      <a href="#problem">The problem &rarr;</a><br>
-      <a href="#how">How it works &rarr;</a><br>
-      <a href="#engine">The engine &rarr;</a><br>
-      <a href="#start">Book a pilot &rarr;</a>
+    <div class="foot-col">
+      <div class="h">Product</div>
+      <a href="#platform">Platform</a>
+      <a href="#problem">The problem</a>
+      <a href="#billing">Billing engine</a>
+      <a href="#start">Book a pilot</a>
     </div>
-    <div class="mono">
-      fivechain.in<br>
-      Bengaluru, India<br>
-      contact@fivechain.in
+    <div class="foot-col">
+      <div class="h">Contact</div>
+      <a href="mailto:contact@fivechain.in">contact@fivechain.in</a>
+      <div>fivechain.in</div>
+      <div>Bengaluru, India</div>
     </div>
   </div>
-  <div class="wrap" style="margin-top:30px">
-    <div class="foot-note">*Industry benchmark: a majority of 3PL warehouses lose revenue to uncaptured storage, receiving and shipping charges. Figures in the sample invoice are illustrative. &copy; 2026 5Chain.</div>
+  <div class="wrap">
+    <div class="foot-legal">*Industry benchmark: a majority of 3PL warehouses lose revenue to uncaptured storage, receiving and shipping charges. Figures in the sample invoice are illustrative. &copy; 2026 5Chain.</div>
   </div>
 </footer>
 
